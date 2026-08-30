@@ -134,3 +134,4 @@ CampusCart/
 3. **Cart & Wishlist Persistence**: Add items to cart/wishlist, refresh browser, ensure items persist via `localStorage`.
 4. **Seller Contact Trigger**: Click "Contact Seller via WhatsApp/Email" and verify generated URI scheme.
 5. **Theme Switcher**: Click Dark/Light toggle and confirm smooth visual transition.
+
