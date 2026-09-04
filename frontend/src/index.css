@@ -8,11 +8,70 @@
     background-color: #fcf9f8;
     color: #1b1c1c;
     font-family: 'Inter', sans-serif;
+    transition: background-color 0.3s ease, color 0.3s ease;
+  }
+
+  .dark body {
+    background-color: #0f172a;
+    color: #f8fafc;
   }
 
   h1, h2, h3, .font-display {
     font-family: 'Geist', sans-serif;
   }
+}
+
+.dark .bg-background {
+  background-color: #0f172a !important;
+}
+
+.dark .text-on-background {
+  color: #f8fafc !important;
+}
+
+.dark .bg-surface-card {
+  background-color: #1e293b !important;
+  color: #f8fafc !important;
+  border-color: #334155 !important;
+}
+
+.dark .bg-surface-container-low,
+.dark .bg-surface-container-high {
+  background-color: #334155 !important;
+  color: #f8fafc !important;
+}
+
+.dark .border-border-subtle {
+  border-color: #334155 !important;
+}
+
+.dark .text-outline {
+  color: #94a3b8 !important;
+}
+
+.dark .text-on-surface-variant {
+  color: #cbd5e1 !important;
+}
+
+.dark .modal-content {
+  background-color: #1e293b !important;
+  color: #f8fafc !important;
+  border-color: #334155 !important;
+}
+
+.dark .modal-header {
+  border-bottom-color: #334155 !important;
+  background-color: #0f172a !important;
+}
+
+.dark .btn-close {
+  filter: invert(1) grayscale(100%) brightness(200%);
+}
+
+.dark .table {
+  color: #f8fafc !important;
+  --bs-table-bg: #1e293b !important;
+  --bs-table-hover-bg: #334155 !important;
 }
 
 .material-symbols-outlined {
@@ -33,12 +92,16 @@
 }
 
 .dark .glass-card, .dark .glass-panel {
-  background: rgba(30, 30, 40, 0.75);
+  background: rgba(30, 41, 59, 0.85);
   border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .hero-gradient {
   background: linear-gradient(135deg, rgba(99, 102, 241, 0.12) 0%, rgba(245, 158, 11, 0.06) 100%);
+}
+
+.dark .hero-gradient {
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.25) 0%, rgba(15, 23, 42, 0.9) 100%);
 }
 
 .blob-shape {

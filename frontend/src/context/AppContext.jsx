@@ -9,6 +9,30 @@ export const AppProvider = ({ children }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All Categories');
 
+  // Dark Mode Theme State
+  const [isDarkMode, setIsDarkMode] = useState(() => {
+    const savedTheme = localStorage.getItem('campuscart_theme');
+    if (savedTheme) return savedTheme === 'dark';
+    return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+  });
+
+  // Apply dark mode class to HTML element
+  useEffect(() => {
+    if (isDarkMode) {
+      document.documentElement.classList.add('dark');
+      document.documentElement.classList.remove('light');
+      localStorage.setItem('campuscart_theme', 'dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+      document.documentElement.classList.add('light');
+      localStorage.setItem('campuscart_theme', 'light');
+    }
+  }, [isDarkMode]);
+
+  const toggleDarkMode = () => {
+    setIsDarkMode(prev => !prev);
+  };
+
   // Products state with LocalStorage backup
   const [products, setProducts] = useState(() => {
     const saved = localStorage.getItem('campuscart_products');
@@ -148,6 +172,8 @@ export const AppProvider = ({ children }) => {
         setSearchQuery,
         selectedCategory,
         setSelectedCategory,
+        isDarkMode,
+        toggleDarkMode,
         products,
         wishlist,
         cart,

@@ -1,6 +1,6 @@
 # CampusCart 🎓🛒
 > **A Modern Peer-to-Peer College Marketplace Web Application**  
-> Built according to the **GTU Web Application Development (BE05000281)** Syllabus specifications using **React.js**, **React-Bootstrap**, **JavaScript (ES6+)**, **HTML5/CSS3**, **Axios**, **LocalStorage**, **Tailwind CSS**, and **Modern Web Concepts (SEO & CAPTCHA)**.
+> Built according to the **GTU Web Application Development (BE05000281)** Syllabus specifications using **React.js**, **React-Bootstrap**, **JavaScript (ES6+)**, **HTML5/CSS3**, **Axios**, **LocalStorage**, **Tailwind CSS**, and **Modern Web Concepts (SEO, Dark Mode & CAPTCHA)**.
 
 ---
 
@@ -17,7 +17,7 @@ CampusCart/
 │   │   │   │   ├── CaptchaWidget.jsx      # Module 7 Anti-Spam Math CAPTCHA
 │   │   │   │   └── ToastNotification.jsx  # User action feedback alerts
 │   │   │   ├── layout/
-│   │   │   │   ├── Navbar.jsx             # Top bar with search, badges, & navigation
+│   │   │   │   ├── Navbar.jsx             # Top bar with search, dark mode toggle, badges
 │   │   │   │   └── Footer.jsx             # SEO footer with quick links
 │   │   │   ├── modals/
 │   │   │   │   ├── AddListingModal.jsx    # Scrollable modal with form & CAPTCHA
@@ -27,12 +27,12 @@ CampusCart/
 │   │   │       ├── BrowsePage.jsx         # Catalog search, price slider, & filters
 │   │   │       └── SellerHubPage.jsx      # Metrics dashboard & listing management
 │   │   ├── context/
-│   │   │   └── AppContext.jsx    # Global state management & LocalStorage persistence
+│   │   │   └── AppContext.jsx    # Global state management & Dark Mode/LocalStorage persistence
 │   │   ├── services/
 │   │   │   └── mockData.js       # Initial campus item datasets with INR (₹) prices
 │   │   ├── App.jsx               # Main application component routing
 │   │   ├── main.jsx              # React entry point with Bootstrap imports
-│   │   └── index.css             # Tailwind directives & glassmorphic styles
+│   │   └── index.css             # Tailwind directives & dark mode glassmorphic styles
 │   ├── package.json
 │   ├── vite.config.js
 │   ├── tailwind.config.js
@@ -47,11 +47,12 @@ CampusCart/
 
 ## ✅ Currently Implemented Frontend Features
 
-### 1. **Campus-Cool Design System & Aesthetics**
+### 1. **Campus-Cool Design System & Dark Mode Toggle**
 - Integrated exact visual specifications from the **Stitch Immersive Visual Interface**:
-  - **Colors**: Vibrant Indigo (`#6366F1`), Fresh Mint (`#10B981`), Sunny Amber (`#F59E0B`), Clean Background (`#FCF9F8`).
+  - **Colors**: Vibrant Indigo (`#6366F1`), Fresh Mint (`#10B981`), Sunny Amber (`#F59E0B`), Clean Light/Dark Background.
+  - **Interactive Dark/Light Mode**: Toggle button in header (`sun`/`moon` icons) seamlessly switching between Light (`#FCF9F8`) and Dark Slate (`#0F172A`) themes with `localStorage` preference sync.
   - **Typography**: Paired **Geist** for display headlines with **Inter** for UI controls.
-  - **Glassmorphism & Depth**: Ambient level shadows (`shadow-level-1/2/3`) and backdrop blur panels (`glass-card`).
+  - **Glassmorphism & Depth**: Ambient level shadows (`shadow-level-1/2/3`) and dark backdrop blur panels (`glass-card`).
 
 ### 2. **Localized INR Currency (₹)**
 - All pricing, original comparisons, filter sliders, metric totals, and buyer messaging are formatted in **Indian Rupees (₹)**.
@@ -82,7 +83,7 @@ CampusCart/
 - **Anti-Spam CAPTCHA Widget**: Interactive Math challenge component to prevent automated spam listings before publishing (GTU Syllabus Module 7 requirement).
 
 ### 7. **Client-Side State Persistence**
-- Synchronizes saved Wishlist items, Cart items, and User Listings with `browser localStorage` (GTU Syllabus Module 3 requirement).
+- Synchronizes saved Theme preference, Wishlist items, Cart items, and User Listings with `browser localStorage` (GTU Syllabus Module 3 requirement).
 
 ---
 

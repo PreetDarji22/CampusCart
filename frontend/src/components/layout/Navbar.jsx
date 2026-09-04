@@ -12,7 +12,9 @@ export const AppNavbar = () => {
     wishlist,
     cart,
     currentUser,
-    setIsAddListingOpen
+    setIsAddListingOpen,
+    isDarkMode,
+    toggleDarkMode
   } = useApp();
 
   const onSearchSubmit = (e) => {
@@ -23,20 +25,20 @@ export const AppNavbar = () => {
   return (
     <Navbar
       fixed="top"
-      className="bg-surface/80 dark:bg-surface-dim/80 backdrop-blur-xl border-b border-border-subtle/50 z-50 py-2 shadow-sm"
+      className="bg-surface/80 dark:bg-slate-900/90 backdrop-blur-xl border-b border-border-subtle/50 dark:border-slate-800 z-50 py-2 shadow-sm"
     >
-      <Container fluid className="px- margin-mobile md:px-margin-desktop">
+      <Container fluid className="px-margin-mobile md:px-margin-desktop">
         {/* Brand */}
         <Navbar.Brand
           onClick={() => setActiveTab('discover')}
-          className="cursor-pointer font-display text-2xl font-bold tracking-tight text-primary dark:text-primary-fixed hover:opacity-90 transition-opacity"
+          className="cursor-pointer font-display text-2xl font-bold tracking-tight text-primary dark:text-vibrant-indigo hover:opacity-90 transition-opacity"
         >
           Campus<span className="text-vibrant-indigo">Cart</span>
         </Navbar.Brand>
 
         {/* Desktop Search Bar */}
         <Form onSubmit={onSearchSubmit} className="hidden md:flex items-center relative w-72 lg:w-96 mx-4">
-          <InputGroup className="rounded-full overflow-hidden border border-border-subtle bg-surface-container-low focus-within:border-vibrant-indigo focus-within:ring-1 focus-within:ring-vibrant-indigo transition-all">
+          <InputGroup className="rounded-full overflow-hidden border border-border-subtle dark:border-slate-700 bg-surface-container-low dark:bg-slate-800 focus-within:border-vibrant-indigo focus-within:ring-1 focus-within:ring-vibrant-indigo transition-all">
             <InputGroup.Text className="bg-transparent border-0 text-outline pl-3 pr-1">
               <span className="material-symbols-outlined text-[20px]">search</span>
             </InputGroup.Text>
@@ -45,7 +47,7 @@ export const AppNavbar = () => {
               placeholder="Search campus marketplace..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="bg-transparent border-0 text-body-md text-on-surface focus:shadow-none py-2 pr-4 shadow-none"
+              className="bg-transparent border-0 text-body-md text-on-surface dark:text-slate-100 focus:shadow-none py-2 pr-4 shadow-none placeholder:text-slate-400"
             />
           </InputGroup>
         </Form>
@@ -56,8 +58,8 @@ export const AppNavbar = () => {
             onClick={() => setActiveTab('discover')}
             className={`font-label-md text-label-md transition-colors py-1 ${
               activeTab === 'discover'
-                ? 'text-primary border-b-2 border-primary font-semibold'
-                : 'text-on-surface-variant hover:text-primary'
+                ? 'text-primary dark:text-vibrant-indigo border-b-2 border-primary dark:border-vibrant-indigo font-semibold'
+                : 'text-on-surface-variant dark:text-slate-300 hover:text-primary'
             }`}
           >
             Discover
@@ -66,8 +68,8 @@ export const AppNavbar = () => {
             onClick={() => setActiveTab('browse')}
             className={`font-label-md text-label-md transition-colors py-1 ${
               activeTab === 'browse'
-                ? 'text-primary border-b-2 border-primary font-semibold'
-                : 'text-on-surface-variant hover:text-primary'
+                ? 'text-primary dark:text-vibrant-indigo border-b-2 border-primary dark:border-vibrant-indigo font-semibold'
+                : 'text-on-surface-variant dark:text-slate-300 hover:text-primary'
             }`}
           >
             Browse
@@ -76,8 +78,8 @@ export const AppNavbar = () => {
             onClick={() => setActiveTab('seller')}
             className={`font-label-md text-label-md transition-colors py-1 ${
               activeTab === 'seller'
-                ? 'text-primary border-b-2 border-primary font-semibold'
-                : 'text-on-surface-variant hover:text-primary'
+                ? 'text-primary dark:text-vibrant-indigo border-b-2 border-primary dark:border-vibrant-indigo font-semibold'
+                : 'text-on-surface-variant dark:text-slate-300 hover:text-primary'
             }`}
           >
             Seller Hub
@@ -86,6 +88,17 @@ export const AppNavbar = () => {
 
         {/* Action Buttons */}
         <div className="flex items-center gap-2">
+          {/* Dark Mode Toggle Button */}
+          <button
+            onClick={toggleDarkMode}
+            className="p-2 text-on-surface-variant dark:text-slate-200 hover:bg-surface-container-high/60 dark:hover:bg-slate-800 rounded-full transition-all flex items-center justify-center"
+            title={isDarkMode ? "Switch to Light Mode" : "Switch to Dark Mode"}
+          >
+            <span className="material-symbols-outlined text-[22px]">
+              {isDarkMode ? 'light_mode' : 'dark_mode'}
+            </span>
+          </button>
+
           {/* Quick List Item Button */}
           <Button
             onClick={() => setIsAddListingOpen(true)}
@@ -98,7 +111,7 @@ export const AppNavbar = () => {
           {/* Favorites/Wishlist Badge */}
           <button
             onClick={() => setActiveTab('browse')}
-            className="p-2 text-on-surface-variant hover:bg-surface-container-high/60 rounded-full transition-all relative"
+            className="p-2 text-on-surface-variant dark:text-slate-200 hover:bg-surface-container-high/60 dark:hover:bg-slate-800 rounded-full transition-all relative"
             title="Wishlist"
           >
             <span className="material-symbols-outlined text-[22px]">favorite</span>
@@ -116,7 +129,7 @@ export const AppNavbar = () => {
           {/* Cart Icon & Counter */}
           <button
             onClick={() => setActiveTab('browse')}
-            className="p-2 text-on-surface-variant hover:bg-surface-container-high/60 rounded-full transition-all relative"
+            className="p-2 text-on-surface-variant dark:text-slate-200 hover:bg-surface-container-high/60 dark:hover:bg-slate-800 rounded-full transition-all relative"
             title="Shopping Cart"
           >
             <span className="material-symbols-outlined text-[22px]">shopping_bag</span>
