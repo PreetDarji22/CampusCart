@@ -93,19 +93,19 @@ export const AddListingModal = () => {
       onHide={() => setIsAddListingOpen(false)}
       size="lg"
       centered
-      className="rounded-2xl overflow-hidden"
+      className="rounded-3xl overflow-hidden"
     >
-      <Modal.Header closeButton className="border-b border-border-subtle bg-surface-container-low px-4 py-3">
-        <Modal.Title className="text-lg font-headline-md font-bold text-on-background flex items-center gap-2">
-          <span className="material-symbols-outlined text-vibrant-indigo">storefront</span>
+      <Modal.Header closeButton className="border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 px-5 py-3.5">
+        <Modal.Title className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
+          <span className="material-symbols-outlined text-indigo-600 dark:text-indigo-400">storefront</span>
           Post New Campus Listing
         </Modal.Title>
       </Modal.Header>
 
-      <Modal.Body className="p-4 bg-surface-card" style={{ maxHeight: '75vh', overflowY: 'auto' }}>
+      <Modal.Body className="p-5 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100" style={{ maxHeight: '75vh', overflowY: 'auto' }}>
         <Form onSubmit={handleSubmit}>
           {errorMsg && (
-            <div className="bg-error-container text-error text-xs p-3 rounded-lg mb-3 font-medium">
+            <div className="bg-rose-50 dark:bg-rose-950/50 border border-rose-200 dark:border-rose-900 text-rose-700 dark:text-rose-300 text-xs p-3 rounded-xl mb-3 font-medium">
               {errorMsg}
             </div>
           )}
@@ -113,7 +113,7 @@ export const AddListingModal = () => {
           <Row className="g-3">
             <Col md={12}>
               <Form.Group>
-                <Form.Label className="text-xs font-label-md text-on-surface">Item Title *</Form.Label>
+                <Form.Label className="text-xs font-semibold text-slate-700 dark:text-slate-300">Item Title *</Form.Label>
                 <Form.Control
                   type="text"
                   name="title"
@@ -127,7 +127,7 @@ export const AddListingModal = () => {
 
             <Col md={6}>
               <Form.Group>
-                <Form.Label className="text-xs font-label-md text-on-surface">Category *</Form.Label>
+                <Form.Label className="text-xs font-semibold text-slate-700 dark:text-slate-300">Category *</Form.Label>
                 <Form.Select name="category" value={formData.category} onChange={handleChange}>
                   {CATEGORIES.filter(c => c !== 'All Categories').map(cat => (
                     <option key={cat} value={cat}>{cat}</option>
@@ -138,7 +138,7 @@ export const AddListingModal = () => {
 
             <Col md={6}>
               <Form.Group>
-                <Form.Label className="text-xs font-label-md text-on-surface">Academic Department</Form.Label>
+                <Form.Label className="text-xs font-semibold text-slate-700 dark:text-slate-300">Academic Department</Form.Label>
                 <Form.Select name="department" value={formData.department} onChange={handleChange}>
                   {DEPARTMENTS.filter(d => d !== 'All Departments').map(dept => (
                     <option key={dept} value={dept}>{dept}</option>
@@ -149,7 +149,7 @@ export const AddListingModal = () => {
 
             <Col md={4}>
               <Form.Group>
-                <Form.Label className="text-xs font-label-md text-on-surface">Selling Price (₹) *</Form.Label>
+                <Form.Label className="text-xs font-semibold text-slate-700 dark:text-slate-300">Selling Price (₹) *</Form.Label>
                 <Form.Control
                   type="number"
                   name="price"
@@ -163,7 +163,7 @@ export const AddListingModal = () => {
 
             <Col md={4}>
               <Form.Group>
-                <Form.Label className="text-xs font-label-md text-on-surface">Original Price (₹)</Form.Label>
+                <Form.Label className="text-xs font-semibold text-slate-700 dark:text-slate-300">Original Price (₹)</Form.Label>
                 <Form.Control
                   type="number"
                   name="originalPrice"
@@ -176,7 +176,7 @@ export const AddListingModal = () => {
 
             <Col md={4}>
               <Form.Group>
-                <Form.Label className="text-xs font-label-md text-on-surface">Item Condition *</Form.Label>
+                <Form.Label className="text-xs font-semibold text-slate-700 dark:text-slate-300">Item Condition *</Form.Label>
                 <Form.Select name="condition" value={formData.condition} onChange={handleChange}>
                   <option value="New">Brand New</option>
                   <option value="Like New">Like New</option>
@@ -188,7 +188,7 @@ export const AddListingModal = () => {
 
             <Col md={12}>
               <Form.Group>
-                <Form.Label className="text-xs font-label-md text-on-surface">Safe Campus Meetup Spot</Form.Label>
+                <Form.Label className="text-xs font-semibold text-slate-700 dark:text-slate-300">Safe Campus Meetup Spot</Form.Label>
                 <Form.Select
                   name="meetupLocation"
                   value={formData.meetupLocation}
@@ -203,7 +203,7 @@ export const AddListingModal = () => {
 
             <Col md={12}>
               <Form.Group>
-                <Form.Label className="text-xs font-label-md text-on-surface">Photo URL (Optional)</Form.Label>
+                <Form.Label className="text-xs font-semibold text-slate-700 dark:text-slate-300">Photo URL (Optional)</Form.Label>
                 <Form.Control
                   type="url"
                   name="image"
@@ -216,7 +216,7 @@ export const AddListingModal = () => {
 
             <Col md={12}>
               <Form.Group>
-                <Form.Label className="text-xs font-label-md text-on-surface">Detailed Description *</Form.Label>
+                <Form.Label className="text-xs font-semibold text-slate-700 dark:text-slate-300">Detailed Description *</Form.Label>
                 <Form.Control
                   as="textarea"
                   rows={3}
@@ -234,17 +234,21 @@ export const AddListingModal = () => {
             </Col>
           </Row>
 
-          <div className="flex justify-end gap-2 mt-4 pt-3 border-t border-border-subtle sticky bottom-0 bg-surface-card py-2">
-            <Button variant="light" onClick={() => setIsAddListingOpen(false)} className="text-xs font-semibold">
+          <div className="flex justify-end gap-2 mt-4 pt-3 border-t border-slate-200 dark:border-slate-800 sticky bottom-0 bg-white dark:bg-slate-900 py-2">
+            <button
+              type="button"
+              onClick={() => setIsAddListingOpen(false)}
+              className="px-4 py-2 rounded-xl text-xs font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-700 cursor-pointer"
+            >
               Cancel
-            </Button>
-            <Button
+            </button>
+            <button
               type="submit"
               disabled={!isCaptchaVerified}
-              className="bg-vibrant-indigo border-0 text-xs font-semibold px-4 py-2 text-white shadow-sm"
+              className="px-5 py-2 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 disabled:opacity-50 text-white text-xs font-bold shadow-md shadow-indigo-500/20 cursor-pointer"
             >
               Publish Listing
-            </Button>
+            </button>
           </div>
         </Form>
       </Modal.Body>

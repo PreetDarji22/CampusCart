@@ -2,9 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { Modal, Form, Button } from 'react-bootstrap';
 import { useApp } from '../../context/AppContext';
 import { CAMPUS_MEETUP_SPOTS } from '../../services/mockData';
+import { getOrCreateChatApi, sendMessageApi, fetchChatMessagesApi } from '../../services/api';
 
 export const ChatModal = ({ show, onHide, chatPartner, productContext }) => {
   const { currentUser } = useApp();
+  const [activeChatId, setActiveChatId] = useState(null);
   const [messages, setMessages] = useState([
     {
       id: 1,
@@ -17,22 +19,44 @@ export const ChatModal = ({ show, onHide, chatPartner, productContext }) => {
 
   const [inputMsg, setInputMsg] = useState('');
 
-  // Reset initial conversation context when partner/product changes
+  // Initialize or fetch MongoDB chat room
   useEffect(() => {
-    if (chatPartner) {
-      setMessages([
-        {
-          id: 1,
-          sender: chatPartner?.name || 'Peer',
-          text: `Hi! Thanks for connecting about "${productContext?.title || 'our campus exchange'}". Where would you like to meet up?`,
-          time: 'Just now',
-          isMe: false
-        }
-      ]);
+    if (chatPartner && show && currentUser) {
+      if (chatPartner.id || chatPartner._id) {
+        getOrCreateChatApi(chatPartner.id || chatPartner._id, productContext?.id)
+          .then(res => {
+            if (res.data?._id) {
+              setActiveChatId(res.data._id);
+              fetchChatMessagesApi(res.data._id).then(msgRes => {
+                if (msgRes.data && msgRes.data.length > 0) {
+                  const dbMsgs = msgRes.data.map(m => ({
+                    id: m._id,
+                    sender: m.senderId?.name || 'Peer',
+                    text: m.text,
+                    time: m.createdAt ? new Date(m.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'Just now',
+                    isMe: m.senderId?._id === currentUser.id || m.senderId === currentUser.id
+                  }));
+                  setMessages(dbMsgs);
+                }
+              }).catch(() => {});
+            }
+          })
+          .catch(() => {});
+      } else {
+        setMessages([
+          {
+            id: 1,
+            sender: chatPartner?.name || 'Peer',
+            text: `Hi! Thanks for connecting about "${productContext?.title || 'our campus exchange'}". Where would you like to meet up?`,
+            time: 'Just now',
+            isMe: false
+          }
+        ]);
+      }
     }
-  }, [chatPartner, productContext]);
+  }, [chatPartner, productContext, show, currentUser]);
 
-  const handleSend = (e) => {
+  const handleSend = async (e) => {
     if (e) e.preventDefault();
     if (!inputMsg.trim()) return;
 
@@ -48,7 +72,16 @@ export const ChatModal = ({ show, onHide, chatPartner, productContext }) => {
     setMessages(prev => [...prev, newMsg]);
     setInputMsg('');
 
-    // Simulate smart auto-reply from peer after 1.5s
+    // Persist to MongoDB if active chat ID exists
+    if (activeChatId) {
+      try {
+        await sendMessageApi(activeChatId, userText);
+      } catch (err) {
+        console.log('[Chat MongoDB Save Note]', err.message);
+      }
+    }
+
+    // Simulate smart auto-reply from peer after 1.2s if no real peer online
     setTimeout(() => {
       setMessages(prev => [
         ...prev,

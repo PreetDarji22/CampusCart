@@ -102,6 +102,42 @@ export const fetchMyOrders = async () => {
   return response.data;
 };
 
+export const acceptOrderApi = async (orderId) => {
+  const response = await api.patch(`/orders/${orderId}/accept`);
+  return response.data;
+};
+
+export const rejectOrderApi = async (orderId) => {
+  const response = await api.patch(`/orders/${orderId}/reject`);
+  return response.data;
+};
+
+export const completeOrderApi = async (orderId) => {
+  const response = await api.patch(`/orders/${orderId}/complete`);
+  return response.data;
+};
+
+// Chats & Real-time Messages API
+export const getOrCreateChatApi = async (recipientId, productId) => {
+  const response = await api.post('/chats', { recipientId, productId });
+  return response.data;
+};
+
+export const fetchUserChatsApi = async () => {
+  const response = await api.get('/chats');
+  return response.data;
+};
+
+export const fetchChatMessagesApi = async (chatId) => {
+  const response = await api.get(`/chats/${chatId}/messages`);
+  return response.data;
+};
+
+export const sendMessageApi = async (chatId, text) => {
+  const response = await api.post(`/chats/${chatId}/messages`, { text });
+  return response.data;
+};
+
 // Student Requirements (Wanted Feed) API
 export const fetchRequirementsApi = async () => {
   const response = await api.get('/requirements');
@@ -136,6 +172,59 @@ export const registerForEventApi = async (eventId, bookingData) => {
 
 export const deleteEventApi = async (eventId) => {
   const response = await api.delete(`/events/${eventId}`);
+  return response.data;
+};
+
+// Notifications API
+export const fetchNotificationsApi = async () => {
+  const response = await api.get('/notifications');
+  return response.data;
+};
+
+export const markAllNotificationsReadApi = async () => {
+  const response = await api.patch('/notifications/read-all');
+  return response.data;
+};
+
+export const markNotificationReadApi = async (id) => {
+  const response = await api.patch(`/notifications/${id}/read`);
+  return response.data;
+};
+
+// Admin Command Center API
+export const fetchAdminStatsApi = async () => {
+  const response = await api.get('/admin/stats');
+  return response.data;
+};
+
+export const fetchAdminUsersApi = async () => {
+  const response = await api.get('/admin/users');
+  return response.data;
+};
+
+export const toggleUserSuspendApi = async (userId) => {
+  const response = await api.patch(`/admin/users/${userId}/suspend`);
+  return response.data;
+};
+
+export const adminDeleteProductApi = async (productId) => {
+  const response = await api.delete(`/admin/products/${productId}`);
+  return response.data;
+};
+
+export const fetchAdminReportsApi = async () => {
+  const response = await api.get('/admin/reports');
+  return response.data;
+};
+
+export const resolveAdminReportApi = async (reportId, status = 'resolved') => {
+  const response = await api.patch(`/admin/reports/${reportId}/resolve`, { status });
+  return response.data;
+};
+
+// Safety & Abuse Reports API
+export const createReportApi = async (reportData) => {
+  const response = await api.post('/reports', reportData);
   return response.data;
 };
 

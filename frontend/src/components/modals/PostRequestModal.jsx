@@ -67,23 +67,23 @@ export const PostRequestModal = () => {
       onHide={() => setIsPostRequestOpen(false)}
       size="lg"
       centered
-      className="rounded-2xl overflow-hidden"
+      className="rounded-3xl overflow-hidden"
     >
-      <Modal.Header closeButton className="border-b border-border-subtle bg-surface-container-low px-4 py-3">
-        <Modal.Title className="text-lg font-headline-md font-bold text-on-background flex items-center gap-2">
-          <span className="material-symbols-outlined text-vibrant-indigo">campaign</span>
+      <Modal.Header closeButton className="border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 px-5 py-3.5">
+        <Modal.Title className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
+          <span className="material-symbols-outlined text-indigo-600 dark:text-indigo-400">campaign</span>
           Post Student Requirement / Wanted Item
         </Modal.Title>
       </Modal.Header>
 
-      <Modal.Body className="p-4 bg-surface-card" style={{ maxHeight: '75vh', overflowY: 'auto' }}>
-        <p className="text-xs text-outline mb-3">
+      <Modal.Body className="p-5 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100" style={{ maxHeight: '75vh', overflowY: 'auto' }}>
+        <p className="text-xs text-slate-500 dark:text-slate-400 mb-3">
           Can't find what you need on the marketplace? Post a student requirement so peers across your campus or hostel can reach out to you directly!
         </p>
 
         <Form onSubmit={handleSubmit}>
           {errorMsg && (
-            <div className="bg-error-container text-error text-xs p-3 rounded-lg mb-3 font-medium">
+            <div className="bg-rose-50 dark:bg-rose-950/50 border border-rose-200 dark:border-rose-900 text-rose-700 dark:text-rose-300 text-xs p-3 rounded-xl mb-3 font-medium">
               {errorMsg}
             </div>
           )}
@@ -91,7 +91,7 @@ export const PostRequestModal = () => {
           <Row className="g-3">
             <Col md={12}>
               <Form.Group>
-                <Form.Label className="text-xs font-label-md text-on-surface">What are you looking for? *</Form.Label>
+                <Form.Label className="text-xs font-semibold text-slate-700 dark:text-slate-300">What are you looking for? *</Form.Label>
                 <Form.Control
                   type="text"
                   name="title"
@@ -105,7 +105,7 @@ export const PostRequestModal = () => {
 
             <Col md={6}>
               <Form.Group>
-                <Form.Label className="text-xs font-label-md text-on-surface">Category *</Form.Label>
+                <Form.Label className="text-xs font-semibold text-slate-700 dark:text-slate-300">Category *</Form.Label>
                 <Form.Select name="category" value={formData.category} onChange={handleChange}>
                   {CATEGORIES.filter(c => c !== 'All Categories').map(cat => (
                     <option key={cat} value={cat}>{cat}</option>
@@ -116,7 +116,7 @@ export const PostRequestModal = () => {
 
             <Col md={6}>
               <Form.Group>
-                <Form.Label className="text-xs font-label-md text-on-surface">Target Academic Department</Form.Label>
+                <Form.Label className="text-xs font-semibold text-slate-700 dark:text-slate-300">Target Academic Department</Form.Label>
                 <Form.Select name="department" value={formData.department} onChange={handleChange}>
                   {DEPARTMENTS.filter(d => d !== 'All Departments').map(dept => (
                     <option key={dept} value={dept}>{dept}</option>
@@ -127,7 +127,7 @@ export const PostRequestModal = () => {
 
             <Col md={6}>
               <Form.Group>
-                <Form.Label className="text-xs font-label-md text-on-surface">Target Budget / Price Willing to Pay (₹)</Form.Label>
+                <Form.Label className="text-xs font-semibold text-slate-700 dark:text-slate-300">Target Budget / Price Willing to Pay (₹)</Form.Label>
                 <Form.Control
                   type="number"
                   name="budget"
@@ -140,7 +140,7 @@ export const PostRequestModal = () => {
 
             <Col md={6}>
               <Form.Group>
-                <Form.Label className="text-xs font-label-md text-on-surface">Preferred Campus Meetup Spot</Form.Label>
+                <Form.Label className="text-xs font-semibold text-slate-700 dark:text-slate-300">Preferred Campus Meetup Spot</Form.Label>
                 <Form.Select name="preferredMeetup" value={formData.preferredMeetup} onChange={handleChange}>
                   {CAMPUS_MEETUP_SPOTS.map(spot => (
                     <option key={spot} value={spot}>{spot}</option>
@@ -150,14 +150,14 @@ export const PostRequestModal = () => {
             </Col>
 
             <Col md={12}>
-              <div className="bg-surface-container-low p-3 rounded-xl border border-border-subtle">
+              <div className="bg-slate-50 dark:bg-slate-800/80 p-3 rounded-2xl border border-slate-200 dark:border-slate-700">
                 <Form.Check
                   type="switch"
                   id="urgent-switch"
                   name="urgent"
                   label={
-                    <span className="text-xs font-semibold text-on-background flex items-center gap-1.5">
-                      <span className="material-symbols-outlined text-[16px] text-error-red">timer</span>
+                    <span className="text-xs font-semibold text-slate-900 dark:text-white flex items-center gap-1.5">
+                      <span className="material-symbols-outlined text-[16px] text-rose-500">timer</span>
                       Mark as Urgent Requirement (Needed within 24-48 Hours)
                     </span>
                   }
@@ -169,7 +169,7 @@ export const PostRequestModal = () => {
 
             <Col md={12}>
               <Form.Group>
-                <Form.Label className="text-xs font-label-md text-on-surface">Details & Condition Requirements *</Form.Label>
+                <Form.Label className="text-xs font-semibold text-slate-700 dark:text-slate-300">Details & Condition Requirements *</Form.Label>
                 <Form.Control
                   as="textarea"
                   rows={3}
@@ -183,17 +183,21 @@ export const PostRequestModal = () => {
             </Col>
           </Row>
 
-          <div className="flex justify-end gap-2 mt-4 pt-3 border-t border-border-subtle sticky bottom-0 bg-surface-card py-2">
-            <Button variant="light" onClick={() => setIsPostRequestOpen(false)} className="text-xs font-semibold">
+          <div className="flex justify-end gap-2 mt-4 pt-3 border-t border-slate-200 dark:border-slate-800 sticky bottom-0 bg-white dark:bg-slate-900 py-2">
+            <button
+              type="button"
+              onClick={() => setIsPostRequestOpen(false)}
+              className="px-4 py-2 rounded-xl text-xs font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-700 cursor-pointer"
+            >
               Cancel
-            </Button>
-            <Button
+            </button>
+            <button
               type="submit"
-              className="bg-vibrant-indigo border-0 text-xs font-semibold px-4 py-2 text-white shadow-sm flex items-center gap-1.5"
+              className="px-5 py-2 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white text-xs font-bold shadow-md shadow-indigo-500/20 flex items-center gap-1.5 cursor-pointer"
             >
               <span className="material-symbols-outlined text-[16px]">send</span>
               Post Request on Bulletin
-            </Button>
+            </button>
           </div>
         </Form>
       </Modal.Body>

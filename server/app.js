@@ -16,6 +16,7 @@ import productRoutes from './src/routes/productRoutes.js';
 import reviewRoutes from './src/routes/reviewRoutes.js';
 import requirementRoutes from './src/routes/requirementRoutes.js';
 import eventRoutes from './src/routes/eventRoutes.js';
+import reportRoutes from './src/routes/reportRoutes.js';
 import uploadRoutes from './src/routes/uploadRoutes.js';
 import userRoutes from './src/routes/userRoutes.js';
 import wishlistRoutes from './src/routes/wishlistRoutes.js';
@@ -68,6 +69,7 @@ app.use('/api/reviews', reviewRoutes);
 app.use('/api/notifications', notificationRoutes);
 app.use('/api/requirements', requirementRoutes);
 app.use('/api/events', eventRoutes);
+app.use('/api/reports', reportRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/upload', uploadRoutes);
 

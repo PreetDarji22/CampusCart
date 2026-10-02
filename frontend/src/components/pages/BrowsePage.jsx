@@ -108,7 +108,7 @@ export const BrowsePage = () => {
   }, [requests, selectedCategory, selectedDept, urgentOnly, verifiedOnly, searchQuery]);
 
   return (
-    <div className="pt-24 pb-16 min-h-screen">
+    <div className="pt-28 sm:pt-32 pb-16 min-h-screen">
       <Container maxwidth="7xl">
         {/* Mode Switcher Tabs */}
         <div className="mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-border-subtle pb-4">

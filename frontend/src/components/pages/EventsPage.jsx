@@ -30,7 +30,7 @@ export const EventsPage = () => {
   }, [events, selectedCategoryFilter, eventSearch]);
 
   return (
-    <div className="pt-24 pb-16 min-h-screen bg-background text-on-background">
+    <div className="pt-28 sm:pt-32 pb-16 min-h-screen bg-background text-on-background">
       <Container maxwidth="7xl" className="px-margin-mobile md:px-margin-desktop">
         {/* Page Header */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8 bg-surface-card p-6 sm:p-8 rounded-3xl border border-border-subtle shadow-sm relative overflow-hidden">

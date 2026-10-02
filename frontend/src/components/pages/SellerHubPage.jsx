@@ -52,6 +52,7 @@ export const SellerHubPage = () => {
 
   const myProducts = products.filter(p => {
     if (!currentUser) return false;
+    if (p.seller?.id && (p.seller.id === currentUser.id || p.seller.id === currentUser._id)) return true;
     if (p.seller?.email && currentUser.email) {
       return p.seller.email.toLowerCase() === currentUser.email.toLowerCase();
     }
@@ -72,8 +73,15 @@ export const SellerHubPage = () => {
     return false;
   });
 
-  const incomingOrders = orders.filter(o => o.sellerEmail && currentUser?.email && o.sellerEmail.toLowerCase() === currentUser.email.toLowerCase());
-  const sentOrders = orders.filter(o => o.buyerEmail && currentUser?.email && o.buyerEmail.toLowerCase() === currentUser.email.toLowerCase());
+  const incomingOrders = orders.filter(o =>
+    (o.sellerEmail && currentUser?.email && o.sellerEmail.toLowerCase() === currentUser.email.toLowerCase()) ||
+    (o.type === 'sale')
+  );
+  
+  const sentOrders = orders.filter(o =>
+    (o.buyerEmail && currentUser?.email && o.buyerEmail.toLowerCase() === currentUser.email.toLowerCase()) ||
+    (o.type === 'purchase')
+  );
 
   const activeCount = myProducts.filter(p => !p.sold).length;
   const soldCount = myProducts.filter(p => p.sold).length;
@@ -88,7 +96,7 @@ export const SellerHubPage = () => {
   };
 
   return (
-    <div className="pt-24 pb-16 min-h-screen">
+    <div className="pt-28 sm:pt-32 pb-16 min-h-screen">
       <Container maxwidth="7xl">
         {/* Header Profile Section */}
         <div className="bg-surface-card p-6 rounded-2xl border border-border-subtle shadow-level-1 mb-6">
@@ -146,10 +154,10 @@ export const SellerHubPage = () => {
             <div className="flex items-center justify-between border-b border-border-subtle pb-3">
               <h3 className="font-bold text-base text-on-background flex items-center gap-2 mb-0">
                 <span className="material-symbols-outlined text-vibrant-indigo">notifications_active</span>
-                Incoming Purchase Requests ({incomingOrders.filter(o => o.status === 'pending').length} Pending)
+                Incoming Sales Orders ({incomingOrders.filter(o => o.status === 'pending').length} Pending)
               </h3>
               <Badge className="bg-vibrant-indigo/15 text-vibrant-indigo text-xs font-semibold">
-                Peer Handoff System
+                MongoDB Live Orders
               </Badge>
             </div>
 
@@ -160,12 +168,27 @@ export const SellerHubPage = () => {
                   className="bg-surface-container-low dark:bg-slate-800 p-4 rounded-xl border border-border-subtle/70 flex flex-col md:flex-row items-start md:items-center justify-between gap-4"
                 >
                   <div className="flex items-center gap-3">
-                    <img src={req.buyerAvatar} alt={req.buyerName} className="w-10 h-10 rounded-full object-cover border" />
+                    <img src={req.buyerAvatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150'} alt={req.buyerName} className="w-10 h-10 rounded-full object-cover border" />
                     <div>
                       <div className="flex items-center gap-2">
                         <span className="font-bold text-sm text-on-background">{req.buyerName}</span>
-                        <Badge bg={req.status === 'accepted' ? 'success' : req.status === 'rejected' ? 'danger' : 'warning'} className="text-[10px]">
-                          {req.status.toUpperCase()}
+                        <Badge
+                          bg={
+                            req.status === 'completed'
+                              ? 'success'
+                              : req.status === 'accepted'
+                              ? 'primary'
+                              : req.status === 'rejected'
+                              ? 'danger'
+                              : 'warning'
+                          }
+                          className="text-[10px]"
+                        >
+                          {req.status === 'completed'
+                            ? 'SOLD & COMPLETED 🎉'
+                            : req.status === 'accepted'
+                            ? 'ACCEPTED - MEETUP PENDING'
+                            : req.status.toUpperCase()}
                         </Badge>
                       </div>
                       <p className="text-xs text-outline mb-0">
@@ -196,14 +219,29 @@ export const SellerHubPage = () => {
                         </Button>
                       </>
                     ) : req.status === 'accepted' ? (
-                      <Button
-                        size="sm"
-                        onClick={() => openChatWith({ name: req.buyerName, avatar: req.buyerAvatar }, { title: req.productTitle })}
-                        className="bg-vibrant-indigo text-white font-bold text-xs rounded-xl border-0 px-3 py-1.5 flex items-center gap-1"
-                      >
-                        <span className="material-symbols-outlined text-[16px]">chat</span>
-                        Open Live Chat
-                      </Button>
+                      <>
+                        <Button
+                          size="sm"
+                          onClick={() => markAsSold(req.productId)}
+                          className="bg-fresh-mint hover:bg-emerald-600 text-white font-bold text-xs rounded-xl border-0 px-3 py-1.5 flex items-center gap-1 shadow-sm"
+                        >
+                          <span className="material-symbols-outlined text-[16px]">verified</span>
+                          Mark Sold (Handoff Done)
+                        </Button>
+                        <Button
+                          size="sm"
+                          onClick={() => openChatWith({ name: req.buyerName, avatar: req.buyerAvatar }, { title: req.productTitle })}
+                          className="bg-vibrant-indigo text-white font-bold text-xs rounded-xl border-0 px-3 py-1.5 flex items-center gap-1"
+                        >
+                          <span className="material-symbols-outlined text-[16px]">chat</span>
+                          Chat with Buyer
+                        </Button>
+                      </>
+                    ) : req.status === 'completed' ? (
+                      <span className="text-xs text-fresh-mint font-bold flex items-center gap-1">
+                        <span className="material-symbols-outlined text-[16px]">task_alt</span>
+                        Transaction Completed
+                      </span>
                     ) : (
                       <span className="text-xs text-outline italic">Request Declined</span>
                     )}
@@ -214,14 +252,17 @@ export const SellerHubPage = () => {
           </div>
         )}
 
-        {/* My Sent Purchase Requests */}
+        {/* My Purchases & Bought Items */}
         {sentOrders.length > 0 && (
           <div className="bg-surface-card p-5 rounded-2xl border border-border-subtle shadow-level-1 mb-6 space-y-4">
             <div className="flex items-center justify-between border-b border-border-subtle pb-3">
               <h3 className="font-bold text-base text-on-background flex items-center gap-2 mb-0">
                 <span className="material-symbols-outlined text-vibrant-indigo">shopping_bag</span>
-                My Sent Purchase Offers ({sentOrders.length})
+                My Purchases & Bought Items ({sentOrders.length})
               </h3>
+              <Badge className="bg-fresh-mint/15 text-fresh-mint text-xs font-semibold">
+                Buyer Ledger
+              </Badge>
             </div>
 
             <div className="space-y-3">
@@ -231,30 +272,55 @@ export const SellerHubPage = () => {
                   className="bg-surface-container-low dark:bg-slate-800 p-4 rounded-xl border border-border-subtle/70 flex flex-col md:flex-row items-start md:items-center justify-between gap-4"
                 >
                   <div className="flex items-center gap-3">
-                    <img src={req.productImage} alt={req.productTitle} className="w-12 h-12 rounded-lg object-cover border" />
+                    <img src={req.productImage || 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=600'} alt={req.productTitle} className="w-12 h-12 rounded-lg object-cover border" />
                     <div>
                       <div className="flex items-center gap-2">
                         <span className="font-bold text-sm text-on-background">{req.productTitle}</span>
-                        <Badge bg={req.status === 'accepted' ? 'success' : req.status === 'rejected' ? 'danger' : 'warning'} className="text-[10px]">
-                          {req.status.toUpperCase()}
+                        <Badge
+                          bg={
+                            req.status === 'completed'
+                              ? 'success'
+                              : req.status === 'accepted'
+                              ? 'primary'
+                              : req.status === 'rejected'
+                              ? 'danger'
+                              : 'warning'
+                          }
+                          className="text-[10px]"
+                        >
+                          {req.status === 'completed'
+                            ? 'PURCHASED & RECEIVED 🎉'
+                            : req.status === 'accepted'
+                            ? 'ACCEPTED - READY FOR MEETUP ✅'
+                            : req.status === 'pending'
+                            ? 'PENDING SELLER RESPONSE ⏳'
+                            : 'DECLINED'}
                         </Badge>
                       </div>
                       <p className="text-xs text-outline mb-0">
-                        Offered: <strong className="text-vibrant-indigo">₹{req.price}</strong> • Seller Email: {req.sellerEmail}
+                        Price: <strong className="text-vibrant-indigo">₹{req.price}</strong> • Seller: {req.sellerName || req.sellerEmail || 'Campus Peer'}
                       </p>
                     </div>
                   </div>
 
-                  {req.status === 'accepted' && (
-                    <Button
-                      size="sm"
-                      onClick={() => openChatWith({ name: 'Seller Peer', avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150' }, { title: req.productTitle })}
-                      className="bg-vibrant-indigo text-white font-bold text-xs rounded-xl border-0 px-3 py-1.5 flex items-center gap-1 self-end md:self-auto"
-                    >
-                      <span className="material-symbols-outlined text-[16px]">chat</span>
-                      Chat with Seller
-                    </Button>
-                  )}
+                  <div className="flex items-center gap-2 self-end md:self-auto">
+                    {req.status === 'accepted' && (
+                      <Button
+                        size="sm"
+                        onClick={() => openChatWith({ name: req.sellerName || 'Seller Peer', avatar: req.sellerAvatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150' }, { title: req.productTitle })}
+                        className="bg-vibrant-indigo text-white font-bold text-xs rounded-xl border-0 px-3 py-1.5 flex items-center gap-1"
+                      >
+                        <span className="material-symbols-outlined text-[16px]">chat</span>
+                        Chat with Seller
+                      </Button>
+                    )}
+                    {req.status === 'completed' && (
+                      <span className="text-xs text-fresh-mint font-bold flex items-center gap-1">
+                        <span className="material-symbols-outlined text-[16px]">verified</span>
+                        Ownership Verified
+                      </span>
+                    )}
+                  </div>
                 </div>
               ))}
             </div>

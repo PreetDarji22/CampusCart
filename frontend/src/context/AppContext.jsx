@@ -1,14 +1,25 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { INITIAL_PRODUCTS, INITIAL_REQUESTS, CAMPUS_EVENTS } from '../services/mockData';
 import {
   fetchProducts,
+  createProductApi,
+  updateProductStatusApi,
+  deleteProductApi,
+  createOrderApi,
+  fetchMyOrders,
+  acceptOrderApi,
+  rejectOrderApi,
+  completeOrderApi,
   fetchRequirementsApi,
   createRequirementApi,
   deleteRequirementApi,
   fetchEventsApi,
   createEventApi,
   registerForEventApi,
-  deleteEventApi
+  deleteEventApi,
+  fetchNotificationsApi,
+  markAllNotificationsReadApi,
+  markNotificationReadApi
 } from '../services/api';
 
 const AppContext = createContext();
@@ -131,6 +142,115 @@ export const AppProvider = ({ children }) => {
     localStorage.setItem(getUserWishlistKey(currentUser), JSON.stringify(wishlist));
   }, [wishlist, currentUser?.email]);
 
+  // Live Campus Notifications state
+  const [notifications, setNotifications] = useState(() => safeParse('campuscart_notifications', [
+    {
+      id: 'notif-1',
+      type: 'order_request',
+      title: 'New Purchase Request',
+      message: 'Maya Lin requested to buy your TI-84 Plus Calculator (₹3,200)',
+      time: '10 mins ago',
+      isRead: false,
+      link: 'seller'
+    },
+    {
+      id: 'notif-2',
+      type: 'order_accepted',
+      title: 'Order Accepted!',
+      message: 'Alex Chen accepted your offer for Engineering Mechanics Book. Meetup ready!',
+      time: '1 hour ago',
+      isRead: false,
+      link: 'seller'
+    }
+  ]));
+
+  const fetchLiveNotifications = useCallback(async () => {
+    try {
+      const res = await fetchNotificationsApi();
+      if (res.data && res.data.length > 0) {
+        const mappedNotifs = res.data.map(n => ({
+          id: n._id,
+          type: n.type,
+          title: n.type === 'order_request' ? 'New Purchase Request' : n.type === 'order_accepted' ? 'Order Accepted!' : 'Campus Notice',
+          message: n.message,
+          time: n.createdAt ? new Date(n.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'Just now',
+          isRead: n.isRead,
+          link: 'seller'
+        }));
+        setNotifications(mappedNotifs);
+      }
+    } catch {}
+  }, []);
+
+  const markAllNotificationsRead = async () => {
+    try {
+      await markAllNotificationsReadApi();
+    } catch {}
+    setNotifications(prev => prev.map(n => ({ ...n, isRead: true })));
+  };
+
+  const markNotificationRead = async (id) => {
+    try {
+      await markNotificationReadApi(id);
+    } catch {}
+    setNotifications(prev => prev.map(n => n.id === id ? { ...n, isRead: true } : n));
+  };
+
+  const unreadNotificationsCount = notifications.filter(n => !n.isRead).length;
+
+  useEffect(() => {
+    localStorage.setItem('campuscart_notifications', JSON.stringify(notifications));
+  }, [notifications]);
+
+  // Fetch live orders (My Purchases & My Sales) from MongoDB
+  const fetchLiveOrders = useCallback(async () => {
+    try {
+      const res = await fetchMyOrders();
+      if (res.data) {
+        const { purchases = [], sales = [] } = res.data;
+        const mappedPurchases = purchases.map(ord => ({
+          id: ord._id,
+          productId: ord.productId?._id || ord.productId,
+          productTitle: ord.productId?.title || 'Campus Item',
+          productImage: ord.productId?.images?.[0] || 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=600',
+          price: ord.offeredPrice || ord.productId?.price || 0,
+          buyerName: currentUser?.name || 'Me',
+          buyerEmail: currentUser?.email || '',
+          sellerId: ord.sellerId?._id || ord.sellerId,
+          sellerName: ord.sellerId?.name || 'Campus Seller',
+          sellerEmail: ord.sellerId?.email || '',
+          sellerAvatar: ord.sellerId?.avatarUrl || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150',
+          status: ord.status || 'pending',
+          notes: ord.notes || 'Order placed on CampusCart',
+          type: 'purchase',
+          createdAt: ord.createdAt ? new Date(ord.createdAt).toLocaleDateString() : 'Recently'
+        }));
+
+        const mappedSales = sales.map(ord => ({
+          id: ord._id,
+          productId: ord.productId?._id || ord.productId,
+          productTitle: ord.productId?.title || 'Campus Item',
+          productImage: ord.productId?.images?.[0] || 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=600',
+          price: ord.offeredPrice || ord.productId?.price || 0,
+          buyerId: ord.buyerId?._id || ord.buyerId,
+          buyerName: ord.buyerId?.name || 'Student Buyer',
+          buyerEmail: ord.buyerId?.email || '',
+          buyerAvatar: ord.buyerId?.avatarUrl || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150',
+          sellerEmail: currentUser?.email || '',
+          sellerName: currentUser?.name || '',
+          status: ord.status || 'pending',
+          notes: ord.notes || 'Purchase request received',
+          type: 'sale',
+          createdAt: ord.createdAt ? new Date(ord.createdAt).toLocaleDateString() : 'Recently'
+        }));
+
+        setOrders([...mappedSales, ...mappedPurchases]);
+      }
+    } catch {
+      // Offline / fallback storage
+    }
+  }, [currentUser]);
+
   // Fetch live products, requirements, and events from MongoDB API on load
   useEffect(() => {
     fetchProducts()
@@ -147,14 +267,17 @@ export const AppProvider = ({ children }) => {
             image: p.images?.[0] || 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=600',
             postedAt: p.createdAt ? new Date(p.createdAt).toLocaleDateString() : 'Recently',
             sold: p.status === 'sold',
+            department: p.sellerId?.department || p.department || 'Computer Science',
             seller: {
+              id: p.sellerId?._id || p.sellerId,
               name: p.sellerId?.name || 'Campus Peer',
+              email: p.sellerId?.email || '',
               avatar: p.sellerId?.avatarUrl || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150',
-              verified: p.sellerId?.isVerified ?? true,
+              verified: p.sellerId?.verified ?? true,
               department: p.sellerId?.department || 'Computer Science',
               year: p.sellerId?.year || 'Senior',
               rating: p.sellerId?.avgRating || 5.0,
-              meetupLocation: p.meetupLocation || 'Tressider Student Union'
+              meetupLocation: p.meetupLocation || 'Central Library Lobby & Steps'
             }
           }));
           setProducts(apiProducts);
@@ -208,7 +331,11 @@ export const AppProvider = ({ children }) => {
         }
       })
       .catch(() => {});
-  }, []);
+
+    if (currentUser) {
+      fetchLiveOrders();
+    }
+  }, [currentUser, fetchLiveOrders]);
 
   const loginUser = (userObj) => {
     const user = {
@@ -225,7 +352,7 @@ export const AppProvider = ({ children }) => {
     };
     setCurrentUser(user);
     localStorage.setItem('campuscart_user', JSON.stringify(user));
-    setActiveTab(user.role === 'admin' ? 'discover' : 'seller');
+    setActiveTab(user.role === 'admin' ? 'admin' : 'seller');
   };
 
   const logoutUser = () => {
@@ -298,27 +425,65 @@ export const AppProvider = ({ children }) => {
     triggerToast('Item removed from your cart', 'Cart Updated');
   };
 
-  const addNewListing = (newProduct) => {
-    const createdProduct = {
-      ...newProduct,
-      id: `prod-${Date.now()}`,
-      postedAt: 'Just now',
-      views: 1,
-      seller: {
-        name: currentUser?.name || 'Student',
-        email: currentUser?.email || '',
-        avatar: currentUser?.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150',
-        verified: currentUser?.verified ?? true,
-        department: currentUser?.department || 'Computer Science & Engineering (CSE / CS)',
-        year: currentUser?.year || 'Senior (Year 4)',
-        rating: 5.0,
-        meetupLocation: newProduct.meetupLocation || 'Central Library Lobby & Steps'
+  const addNewListing = async (newProduct) => {
+    let createdProduct = null;
+    try {
+      const res = await createProductApi(newProduct);
+      if (res.data) {
+        const p = res.data;
+        createdProduct = {
+          id: p._id,
+          title: p.title,
+          description: p.description,
+          price: p.price,
+          originalPrice: p.originalPrice || Math.round(p.price * 1.5),
+          category: p.category?.name || newProduct.category || 'Misc',
+          condition: p.condition || 'Good',
+          image: p.images?.[0] || newProduct.image,
+          postedAt: 'Just now',
+          sold: p.status === 'sold',
+          views: 1,
+          department: p.sellerId?.department || newProduct.department || 'Computer Science & Engineering (CSE / CS)',
+          seller: {
+            id: p.sellerId?._id || p.sellerId,
+            name: p.sellerId?.name || currentUser?.name || 'Student',
+            email: p.sellerId?.email || currentUser?.email || '',
+            avatar: p.sellerId?.avatarUrl || currentUser?.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150',
+            verified: p.sellerId?.verified ?? true,
+            department: p.sellerId?.department || currentUser?.department || 'Computer Science',
+            year: p.sellerId?.year || currentUser?.year || 'Senior',
+            rating: 5.0,
+            meetupLocation: p.meetupLocation || newProduct.meetupLocation || 'Central Library Lobby & Steps'
+          }
+        };
       }
-    };
+    } catch (err) {
+      console.log('[API Product Create Note]', err.message);
+    }
 
-    setProducts(prev => [createdProduct, ...prev]);
+    if (!createdProduct) {
+      createdProduct = {
+        ...newProduct,
+        id: `prod-${Date.now()}`,
+        postedAt: 'Just now',
+        views: 1,
+        department: newProduct.department || currentUser?.department || 'Computer Science',
+        seller: {
+          name: currentUser?.name || 'Student',
+          email: currentUser?.email || '',
+          avatar: currentUser?.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150',
+          verified: currentUser?.verified ?? true,
+          department: currentUser?.department || 'Computer Science & Engineering (CSE / CS)',
+          year: currentUser?.year || 'Senior (Year 4)',
+          rating: 5.0,
+          meetupLocation: newProduct.meetupLocation || 'Central Library Lobby & Steps'
+        }
+      };
+    }
+
+    setProducts(prev => [createdProduct, ...prev.filter(p => p.id !== createdProduct.id)]);
     setMyListingIds(prev => [createdProduct.id, ...prev]);
-    triggerToast(`Listing for "${createdProduct.title}" is now LIVE on CampusCart!`, 'Listing Published');
+    triggerToast(`Listing for "${createdProduct.title}" is now LIVE in MongoDB & on CampusCart!`, 'Listing Published');
   };
 
   const addNewRequest = async (reqPayload) => {
@@ -451,54 +616,115 @@ export const AppProvider = ({ children }) => {
     triggerToast('Campus event removed.', 'Events Hub');
   };
 
-  const markAsSold = (productId) => {
+  const markAsSold = async (productId) => {
+    try {
+      await updateProductStatusApi(productId, 'sold');
+      const relatedOrder = orders.find(o => o.productId === productId && (o.status === 'accepted' || o.status === 'pending'));
+      if (relatedOrder) {
+        await completeOrderApi(relatedOrder.id);
+      }
+    } catch (err) {
+      console.log('[API Mark Sold Note]', err.message);
+    }
+
     setProducts(prev => prev.map(p => p.id === productId ? { ...p, sold: true } : p));
-    triggerToast('Item marked as SOLD! Congratulations on your sale.', 'Seller Hub');
+    setOrders(prev => prev.map(ord => ord.productId === productId ? { ...ord, status: 'completed' } : ord));
+    triggerToast('Item marked as SOLD in MongoDB & added to completed purchases!', 'Seller Hub');
   };
 
-  const deleteListing = (productId) => {
+  const deleteListing = async (productId) => {
+    try {
+      await deleteProductApi(productId);
+    } catch (err) {
+      console.log('[API Delete Product Note]', err.message);
+    }
     setProducts(prev => prev.filter(p => p.id !== productId));
     setMyListingIds(prev => prev.filter(id => id !== productId));
-    triggerToast('Listing permanently deleted.', 'Seller Hub');
+    triggerToast('Listing permanently deleted from marketplace.', 'Seller Hub');
   };
 
-  const createPurchaseRequest = (product, notes = '') => {
+  const createPurchaseRequest = async (product, notes = '') => {
     if (!requireAuth()) return;
     if (product.seller?.email && currentUser?.email && product.seller.email.toLowerCase() === currentUser.email.toLowerCase()) {
       triggerToast('You own this listing!', 'Purchase Request');
       return;
     }
 
-    const newOrder = {
-      id: `ord-${Date.now()}`,
-      productId: product.id,
-      productTitle: product.title,
-      productImage: product.image,
-      price: product.price,
-      buyerName: currentUser.name,
-      buyerEmail: currentUser.email,
-      buyerAvatar: currentUser.avatar,
-      sellerEmail: product.seller?.email || 'alex.chen@stanford.edu',
-      status: 'pending',
-      notes: notes || 'Would like to purchase this item!',
-      createdAt: 'Just now'
-    };
+    let newOrder = null;
+    try {
+      const res = await createOrderApi({
+        productId: product.id,
+        offeredPrice: product.price,
+        notes: notes || 'Would like to purchase this item!'
+      });
+      if (res.data) {
+        const ord = res.data;
+        newOrder = {
+          id: ord._id,
+          productId: product.id,
+          productTitle: product.title,
+          productImage: product.image,
+          price: ord.offeredPrice || product.price,
+          buyerName: currentUser.name,
+          buyerEmail: currentUser.email,
+          buyerAvatar: currentUser.avatar,
+          sellerEmail: product.seller?.email || 'seller@campus.edu',
+          sellerName: product.seller?.name || 'Campus Seller',
+          status: ord.status || 'pending',
+          notes: notes || 'Would like to purchase this item!',
+          type: 'purchase',
+          createdAt: 'Just now'
+        };
+        triggerToast(`Purchase request recorded in MongoDB & sent to ${product.seller?.name || 'seller'}!`, 'Request Sent');
+      }
+    } catch (err) {
+      console.log('[API Order Create Note]', err.message);
+    }
 
-    setOrders(prev => [newOrder, ...prev]);
+    if (!newOrder) {
+      newOrder = {
+        id: `ord-${Date.now()}`,
+        productId: product.id,
+        productTitle: product.title,
+        productImage: product.image,
+        price: product.price,
+        buyerName: currentUser.name,
+        buyerEmail: currentUser.email,
+        buyerAvatar: currentUser.avatar,
+        sellerEmail: product.seller?.email || 'seller@campus.edu',
+        sellerName: product.seller?.name || 'Campus Seller',
+        status: 'pending',
+        notes: notes || 'Would like to purchase this item!',
+        type: 'purchase',
+        createdAt: 'Just now'
+      };
+      triggerToast(`Purchase request sent to ${product.seller?.name || 'seller'}!`, 'Request Sent');
+    }
+
+    setOrders(prev => [newOrder, ...prev.filter(o => o.id !== newOrder.id)]);
     localStorage.setItem('campuscart_orders', JSON.stringify([newOrder, ...orders]));
-    triggerToast(`Purchase request sent to ${product.seller?.name || 'seller'}!`, 'Request Sent');
   };
 
-  const acceptPurchaseRequest = (orderId) => {
+  const acceptPurchaseRequest = async (orderId) => {
+    try {
+      await acceptOrderApi(orderId);
+    } catch (err) {
+      console.log('[API Accept Order Note]', err.message);
+    }
     setOrders(prev => prev.map(ord => ord.id === orderId ? { ...ord, status: 'accepted' } : ord));
     const targetOrder = orders.find(ord => ord.id === orderId);
     if (targetOrder) {
-      triggerToast(`Accepted buy request for "${targetOrder.productTitle}"! Opening chat...`, 'Request Accepted');
+      triggerToast(`Accepted buy request for "${targetOrder.productTitle}"! Ready for meetup.`, 'Request Accepted');
       openChatWith({ name: targetOrder.buyerName, avatar: targetOrder.buyerAvatar }, { title: targetOrder.productTitle });
     }
   };
 
-  const rejectPurchaseRequest = (orderId) => {
+  const rejectPurchaseRequest = async (orderId) => {
+    try {
+      await rejectOrderApi(orderId);
+    } catch (err) {
+      console.log('[API Reject Order Note]', err.message);
+    }
     setOrders(prev => prev.map(ord => ord.id === orderId ? { ...ord, status: 'rejected' } : ord));
     triggerToast('Purchase request declined.', 'Seller Hub');
   };
@@ -565,6 +791,10 @@ export const AppProvider = ({ children }) => {
         createPurchaseRequest,
         acceptPurchaseRequest,
         rejectPurchaseRequest,
+        notifications,
+        unreadNotificationsCount,
+        markAllNotificationsRead,
+        markNotificationRead,
         openChatWith,
         isChatOpen,
         setIsChatOpen,

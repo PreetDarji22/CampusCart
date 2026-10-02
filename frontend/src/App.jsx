@@ -6,6 +6,7 @@ import { DiscoverPage } from './components/pages/DiscoverPage';
 import { BrowsePage } from './components/pages/BrowsePage';
 import { SellerHubPage } from './components/pages/SellerHubPage';
 import { EventsPage } from './components/pages/EventsPage';
+import { AdminPage } from './components/pages/AdminPage';
 import { ProductDetailModal } from './components/modals/ProductDetailModal';
 import { AddListingModal } from './components/modals/AddListingModal';
 import { PostRequestModal } from './components/modals/PostRequestModal';
@@ -42,6 +43,7 @@ const MainContent = () => {
         {activeTab === 'browse' && <BrowsePage />}
         {activeTab === 'events' && <EventsPage />}
         {activeTab === 'seller' && <SellerHubPage />}
+        {activeTab === 'admin' && <AdminPage />}
       </main>
 
       <AppFooter />

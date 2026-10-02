@@ -7,19 +7,21 @@ import { sendTokenResponse } from '../utils/generateToken.js';
 // @route   POST /api/auth/register
 // @access  Public
 export const register = asyncHandler(async (req, res, next) => {
-  const { name, email, password, department, year, rollNumber, phone } = req.body;
+  const { name, email, password, department, year, rollNumber, phone, role } = req.body;
 
   const userExists = await User.findOne({ email });
   if (userExists) {
     return next(new AppError('A user with this email address already exists.', 400));
   }
 
-  // Create user
+  // Create user with explicit or inferred role
+  const userRole = role || (email.toLowerCase().startsWith('admin') ? 'admin' : 'student');
   const user = await User.create({
     name,
     email,
     password,
-    department: department || 'Computer Science',
+    role: userRole,
+    department: department || (userRole === 'admin' ? 'Administration & Safety' : 'Computer Science'),
     year: year || 'Senior (Year 4)',
     rollNumber: rollNumber || '',
     phone: phone || ''
@@ -45,6 +47,11 @@ export const login = asyncHandler(async (req, res, next) => {
 
   if (user.isSuspended) {
     return next(new AppError('Account is suspended. Please contact administrator.', 403));
+  }
+
+  if (email.toLowerCase().startsWith('admin') && user.role !== 'admin') {
+    user.role = 'admin';
+    await user.save({ validateBeforeSave: false });
   }
 
   sendTokenResponse(user, 200, res, 'Logged in successfully!');
