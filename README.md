@@ -384,8 +384,8 @@ CampusCart fulfills all requirements for **Web Application Development (GTU BE05
 
 This project is created for academic and educational purposes under the **MIT License**.
 
-- **Author**: Preet Darji
+- **Author**: Preet Darji , Deepak Valani , Dhairya Koria 
 - **Repository**: [https://github.com/PreetDarji22/CampusCart](https://github.com/PreetDarji22/CampusCart)
 
 ---
-*Built with ❤️ for campus student communities.*
+*Built with ❤️ as a WAD&ADBMS mini project and for campus student communities.*
