@@ -5,6 +5,7 @@ import { AppFooter } from './components/layout/Footer';
 import { DiscoverPage } from './components/pages/DiscoverPage';
 import { BrowsePage } from './components/pages/BrowsePage';
 import { SellerHubPage } from './components/pages/SellerHubPage';
+import { EventsPage } from './components/pages/EventsPage';
 import { ProductDetailModal } from './components/modals/ProductDetailModal';
 import { AddListingModal } from './components/modals/AddListingModal';
 import { PostRequestModal } from './components/modals/PostRequestModal';
@@ -39,6 +40,7 @@ const MainContent = () => {
       <main className="flex-grow">
         {activeTab === 'discover' && <DiscoverPage />}
         {activeTab === 'browse' && <BrowsePage />}
+        {activeTab === 'events' && <EventsPage />}
         {activeTab === 'seller' && <SellerHubPage />}
       </main>
 

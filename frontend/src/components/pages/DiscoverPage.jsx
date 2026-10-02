@@ -1,5 +1,5 @@
-import React from 'react';
-import { Container, Row, Col, ProgressBar } from 'react-bootstrap';
+import React, { useState, useMemo } from 'react';
+import { Container, Row, Col } from 'react-bootstrap';
 import { useApp } from '../../context/AppContext';
 import { CATEGORIES } from '../../services/mockData';
 
@@ -14,22 +14,211 @@ export const DiscoverPage = () => {
     setIsAddListingOpen,
     setIsPostRequestOpen,
     setIsAuthOpen,
-    setIsCreateEventOpen,
-    setSelectedEventForTicket,
-    deleteEvent,
     events,
-    currentUser,
-    isAuthenticated,
-    isAdmin,
-    requireAuth
+    isAuthenticated
   } = useApp();
+
+  const [activeFaqCategory, setActiveFaqCategory] = useState('All Topics');
+  const [faqSearchQuery, setFaqSearchQuery] = useState('');
+  const [openFaqId, setOpenFaqId] = useState(1); // First item open by default
+  const [faqFeedback, setFaqFeedback] = useState({}); // Track helpful votes
 
   const handleCategoryClick = (cat) => {
     setSelectedCategory(cat);
     setActiveTab('browse');
   };
 
+  const toggleFaq = (id) => {
+    setOpenFaqId(prev => (prev === id ? null : id));
+  };
+
+  const handleFeedback = (id, type, e) => {
+    e.stopPropagation();
+    setFaqFeedback(prev => ({ ...prev, [id]: type }));
+  };
+
   const featuredProduct = products.find(p => p.id === 'prod-1') || products[0];
+  const upcomingEventHighlight = events?.[0] || {
+    title: 'Campus Hackathon 2026',
+    date: 'Oct 18 - 20, 2026',
+    venue: 'Main Innovation Lab',
+    category: 'Hackathon'
+  };
+
+  // Comprehensive, Rich Campus FAQ Database
+  const FAQ_DATA = [
+    {
+      id: 1,
+      category: 'Verification & Trust',
+      icon: 'verified_user',
+      iconColor: 'text-vibrant-indigo bg-indigo-50 dark:bg-indigo-950/60',
+      badge: '100% University Verified',
+      question: 'How does CampusCart verify that only authentic college students use the platform?',
+      answer:
+        'Every student must register using their official college email address (e.g. student@college.edu) and select their engineering department (CSE, IT, AIML, ME, EE, ECE, Civil, etc.). Unverified off-campus strangers or commercial spammers are strictly blocked from listing items, posting requirements, or contacting students.',
+      highlights: ['Institutional college email verification', 'Department-specific badges', 'Strict anti-stranger campus firewall'],
+      tips: 'Always check for the green Verified Student shield badge next to a peer’s name on listing cards.'
+    },
+    {
+      id: 2,
+      category: 'Campus Meetups',
+      icon: 'location_on',
+      iconColor: 'text-fresh-mint bg-emerald-50 dark:bg-emerald-950/60',
+      badge: 'Safe Daylight Zones',
+      question: 'Where are the designated safe campus meetup spots for item testing and exchange?',
+      answer:
+        'To guarantee physical safety and ease of inspection, all handovers must take place at established campus public zones with high student footfall and security coverage during daytime hours:',
+      steps: [
+        'Central Library Lobby & Steps (Best for quiet book/calculator checks)',
+        'Engineering Complex Foyer & Tech Labs (Best for testing Arduino & electronic kits)',
+        'Student Union Quad & Main Canteen (High footfall daylight area)',
+        'Hostel Gate Security Desks (For evening textbook exchanges)'
+      ],
+      tips: 'You can tap the 1-click Meetup Chips directly inside the in-app chat to suggest meeting spots in seconds.'
+    },
+    {
+      id: 3,
+      category: 'Payments & Pricing',
+      icon: 'payments',
+      iconColor: 'text-sunny-amber bg-amber-50 dark:bg-amber-950/60',
+      badge: 'Zero Commission Fees',
+      question: 'How do payments work and does CampusCart take any transaction cut or fee?',
+      answer:
+        'CampusCart charges exactly 0% commission fees! Transactions are 100% peer-to-peer. You meet on campus, physically inspect the drafter, lab coat, or graphing calculator, and once satisfied, transfer funds directly to the seller via UPI QR code (GPay, PhonePe, Paytm) or exact cash.',
+      highlights: ['0% platform service fees', 'Direct student-to-student UPI/Cash', 'Inspect physically before paying a single rupee'],
+      tips: 'Never send advance booking deposits online before meeting the seller in person on campus.'
+    },
+    {
+      id: 4,
+      category: 'Buying & Selling',
+      icon: 'campaign',
+      iconColor: 'text-purple-600 bg-purple-50 dark:bg-purple-950/60',
+      badge: 'Broadcast ISO',
+      question: 'What is the Student Wanted Bulletin and how does it help me find rare items?',
+      answer:
+        'If an item you need (such as a specific 3rd-semester circuit theory reference book, engineering graphics roller scale, or robotics motor driver) is not currently listed for sale, you can post an In Search Of (ISO) requirement. The request is instantly broadcasted to students across all engineering branches, allowing seniors with spare gear to message you directly.',
+      highlights: ['Broadcast requirements in 10 seconds', 'Tag your branch & budget preference', 'Instant notification when peers reply'],
+      tips: 'Specify your urgency badge (High/Medium) and semester so matching seniors can reach out immediately.'
+    },
+    {
+      id: 5,
+      category: 'Buying & Selling',
+      icon: 'menu_book',
+      iconColor: 'text-cyan-600 bg-cyan-50 dark:bg-cyan-950/60',
+      badge: 'Senior Pass-Down',
+      question: 'Can 1st-year juniors buy semester kits and drafters directly from senior batches?',
+      answer:
+        'Yes! CampusCart is designed specifically around university engineering academic semesters. Seniors pass down mini-drafters, roller scales, Arduino & Raspberry Pi kits, breadboards, engineering mechanics guides, and workshop coats to junior batches at up to 70% off retail store prices.',
+      highlights: ['Save up to 70% compared to campus bookstore prices', 'Tested equipment with genuine senior guidance', 'Sustainable eco-friendly campus reuse'],
+      tips: 'Check the catalog at semester start when senior batches post bulk course essentials.'
+    },
+    {
+      id: 6,
+      category: 'Events & Notices',
+      icon: 'confirmation_number',
+      iconColor: 'text-pink-600 bg-pink-50 dark:bg-pink-950/60',
+      badge: 'Instant QR Pass',
+      question: 'How do campus event registrations, digital passes, and hackathon tickets work?',
+      answer:
+        'College admins and student clubs post verified technical hackathons, coding workshops, cultural fests, and sports leagues on the dedicated Campus Events Hub. Students can register with 1-click and receive an instant digital ticket passport containing a unique QR code and Ticket ID (e.g. TKT-HACK-8921) saved to their profile.',
+      highlights: ['Verified club & faculty event postings', 'Real-time seat capacity counter', 'Instant downloadable digital QR pass'],
+      tips: 'You can save or print your ticket passport PDF directly to show at the auditorium or lab entrance.'
+    },
+    {
+      id: 7,
+      category: 'Verification & Trust',
+      icon: 'stars',
+      iconColor: 'text-amber-500 bg-amber-50 dark:bg-amber-950/60',
+      badge: 'Peer Karma & Reviews',
+      question: 'How does the student star rating and reputation review system work?',
+      answer:
+        'Whenever a transaction or exchange is completed, the seller marks the item as SOLD. The buyer is prompted to submit a verified 1 to 5-star rating with an honest review. Top-rated students earn "Trusted Campus Peer" badges, boosting confidence for future exchanges.',
+      highlights: ['Authentic peer feedback only from completed trades', 'Badges for punctual meetups and quality items', 'Zero anonymous fake reviews'],
+      tips: 'Maintaining prompt chat replies and clear item descriptions ensures a 5.0 campus seller score.'
+    },
+    {
+      id: 8,
+      category: 'Payments & Pricing',
+      icon: 'tune',
+      iconColor: 'text-indigo-600 bg-indigo-50 dark:bg-indigo-950/60',
+      badge: 'Friendly Haggling',
+      question: 'Can I negotiate or send custom price offers using the built-in student chat?',
+      answer:
+        'Yes! On any product page, clicking "Chat with Seller" or "Make Offer" allows you to propose a reasonable peer price. Both students can converse in real-time, negotiate bundle deals (e.g. buying a drafter + lab manual together), and agree on the final handover price before meeting.',
+      highlights: ['Real-time student messaging', 'Quick price counter-offers', 'Bundle discount negotiations'],
+      tips: 'Be polite and fair when proposing discounts; remember, you are dealing with fellow classmates!'
+    },
+    {
+      id: 9,
+      category: 'Buying & Selling',
+      icon: 'lock',
+      iconColor: 'text-emerald-600 bg-emerald-50 dark:bg-emerald-950/60',
+      badge: 'User Privacy',
+      question: 'Are my cart, wishlist, and active listings completely private to my account?',
+      answer:
+        'Yes, CampusCart implements strict account-isolated state persistence. Your shopping bag, saved wishlist favorites, chat history, and posted listings are stored under your unique login credentials and are never mixed with other users or guests.',
+      highlights: ['Independent cart and wishlist per user', 'Encrypted local session cache', 'Seamless sync across browser sessions'],
+      tips: 'Logging out safely preserves your personal wishlist until you sign in again.'
+    },
+    {
+      id: 10,
+      category: 'Campus Meetups',
+      icon: 'schedule',
+      iconColor: 'text-blue-600 bg-blue-50 dark:bg-blue-950/60',
+      badge: 'Punctuality Rules',
+      question: 'What happens if a buyer or seller reschedules or fails to show up on campus?',
+      answer:
+        'You can send an instant message in the chat thread to reschedule or agree on an alternate break period between lectures. If a user consistently no-shows or acts in bad faith, you can decline the offer or report the profile for moderator review.',
+      highlights: ['In-app meetup rescheduling', '15-minute prior reminder chats', 'Student accountability protection'],
+      tips: 'Always confirm the meetup spot and time 15 minutes before the lecture ends.'
+    },
+    {
+      id: 11,
+      category: 'Payments & Pricing',
+      icon: 'replay',
+      iconColor: 'text-teal-600 bg-teal-50 dark:bg-teal-950/60',
+      badge: 'Quality Guarantee',
+      question: 'What should I do if an electronic item or calculator has a hidden defect?',
+      answer:
+        'We strongly encourage buyers to thoroughly power-on and test electronic devices (calculators, breadboards, power adapters) during the physical meetup. Sellers agree to a 24-hour campus honor-return policy for mechanical/electronic equipment if not functioning as advertised.',
+      highlights: ['Physical testing during handover', '24-hour campus honor return period', 'Admin dispute resolution support'],
+      tips: 'Bring a couple of AAA batteries or a power bank with you to test electronics at the meetup spot.'
+    },
+    {
+      id: 12,
+      category: 'Verification & Trust',
+      icon: 'shield',
+      iconColor: 'text-red-500 bg-red-50 dark:bg-red-950/60',
+      badge: 'Active Moderation',
+      question: 'How do I report a policy violation, prohibited item, or suspicious account?',
+      answer:
+        'Every listing, requirement card, and chat conversation features a 1-click "Report" button. Flagged items are instantly submitted to faculty and student council moderators with priority escalation to keep the marketplace 100% clean and compliant.',
+      highlights: ['1-click instant reporting', 'Rapid moderator review', 'Strict zero-tolerance policy for banned items'],
+      tips: 'Prohibited items include non-academic commercial goods, weapons, and off-campus services.'
+    }
+  ];
+
+  const FAQ_CATEGORIES = [
+    'All Topics',
+    'Verification & Trust',
+    'Buying & Selling',
+    'Campus Meetups',
+    'Payments & Pricing',
+    'Events & Notices'
+  ];
+
+  const filteredFaqs = useMemo(() => {
+    return FAQ_DATA.filter(faq => {
+      const matchesCategory = activeFaqCategory === 'All Topics' || faq.category === activeFaqCategory;
+      const q = faqSearchQuery.toLowerCase().trim();
+      if (!q) return matchesCategory;
+      const inQuestion = faq.question.toLowerCase().includes(q);
+      const inAnswer = faq.answer.toLowerCase().includes(q);
+      const inBadge = faq.badge?.toLowerCase().includes(q);
+      const inHighlights = faq.highlights?.some(h => h.toLowerCase().includes(q));
+      return matchesCategory && (inQuestion || inAnswer || inBadge || inHighlights);
+    });
+  }, [activeFaqCategory, faqSearchQuery]);
 
   return (
     <div className="pt-20">
@@ -42,10 +231,27 @@ export const DiscoverPage = () => {
         </div>
 
         <Container maxwidth="7xl" className="relative z-10 mx-auto">
+          {/* Top Live Event Callout Pill */}
+          <div className="mb-4">
+            <button
+              onClick={() => setActiveTab('events')}
+              className="inline-flex items-center gap-2 px-4 py-1.5 bg-surface-card/90 dark:bg-slate-800/90 backdrop-blur-md rounded-full shadow-sm border border-vibrant-indigo/30 hover:border-vibrant-indigo transition-all group"
+            >
+              <span className="w-2 h-2 rounded-full bg-fresh-mint animate-pulse"></span>
+              <span className="text-xs font-bold text-vibrant-indigo uppercase tracking-wider">
+                🎪 Happening On Campus:
+              </span>
+              <span className="text-xs text-on-background font-semibold group-hover:underline">
+                {upcomingEventHighlight.title} ({upcomingEventHighlight.date})
+              </span>
+              <span className="text-xs text-outline group-hover:translate-x-0.5 transition-transform">→</span>
+            </button>
+          </div>
+
           <Row className="align-items-center gy-5">
             <Col lg={6} className="space-y-6">
               <div className="inline-flex items-center gap-2 px-3.5 py-1.5 bg-surface-card rounded-full shadow-sm border border-border-subtle">
-                <span className="w-2.5 h-2.5 rounded-full bg-fresh-mint animate-pulse"></span>
+                <span className="w-2.5 h-2.5 rounded-full bg-fresh-mint"></span>
                 <span className="font-label-md text-xs font-semibold text-on-surface-variant">Closed Peer-to-Peer College Marketplace</span>
               </div>
 
@@ -74,6 +280,12 @@ export const DiscoverPage = () => {
                     >
                       Browse Campus Listings
                     </button>
+                    <button
+                      onClick={() => setActiveTab('events')}
+                      className="px-5 py-3 bg-surface-container-low dark:bg-slate-800 text-vibrant-indigo font-bold text-sm rounded-xl border border-border-subtle shadow-sm hover:bg-surface-card transition-all flex items-center gap-1.5"
+                    >
+                      <span>🎪</span> Campus Events Hub
+                    </button>
                   </>
                 ) : (
                   <>
@@ -90,6 +302,12 @@ export const DiscoverPage = () => {
                     >
                       <span className="material-symbols-outlined text-[18px]">campaign</span>
                       Post Wanted Request
+                    </button>
+                    <button
+                      onClick={() => setActiveTab('events')}
+                      className="px-5 py-3 bg-surface-container-low dark:bg-slate-800 text-vibrant-indigo font-bold text-sm rounded-xl border border-border-subtle shadow-sm hover:bg-surface-card transition-all flex items-center gap-1.5"
+                    >
+                      <span>🎪</span> Events Hub
                     </button>
                   </>
                 )}
@@ -188,7 +406,7 @@ export const DiscoverPage = () => {
       </section>
 
       {/* =========================================================================
-          IMPRESSIVE & VISUALLY STUNNING "HOW CAMPUSCART WORKS" (Requirement 4)
+          HOW CAMPUSCART WORKS (High Impact Redesign)
          ========================================================================= */}
       <section className="relative py-16 bg-surface-card border-y border-border-subtle/80 overflow-hidden">
         {/* Glow ambient background accents */}
@@ -410,137 +628,6 @@ export const DiscoverPage = () => {
         </div>
       </section>
 
-      {/* =========================================================================
-          CAMPUS EVENTS & DIGITAL TICKET HUB (Requirement 5)
-         ========================================================================= */}
-      <section className="px-margin-mobile md:px-margin-desktop py-12 max-w-7xl mx-auto">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-8">
-          <div>
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-vibrant-indigo/10 rounded-full text-xs font-bold text-vibrant-indigo mb-1">
-              <span>🎪</span> College Noticeboard
-            </div>
-            <h2 className="font-headline-lg text-2xl sm:text-3xl font-bold text-on-background mt-1">
-              Upcoming Campus Events & Gear Hub
-            </h2>
-            <p className="text-xs sm:text-sm text-outline mb-0">
-              Register for engineering fests, hackathons & sports. Buy or rent relevant gear directly from peers.
-            </p>
-          </div>
-
-          <div className="flex items-center gap-2">
-            {isAdmin && (
-              <button
-                onClick={() => setIsCreateEventOpen(true)}
-                className="px-4 py-2.5 bg-slate-900 dark:bg-indigo-700 text-white font-bold text-xs rounded-xl shadow-md hover:bg-slate-800 transition-all flex items-center gap-1.5"
-              >
-                <span className="material-symbols-outlined text-[16px]">add_circle</span>
-                + Post New Event (Admin)
-              </button>
-            )}
-
-            <button
-              onClick={() => setActiveTab('browse')}
-              className="text-xs font-semibold text-vibrant-indigo hover:underline flex items-center gap-1 px-3 py-2 bg-surface-card rounded-xl border border-border-subtle"
-            >
-              Explore Gear Marketplace →
-            </button>
-          </div>
-        </div>
-
-        <Row className="g-4">
-          {events.map(ev => {
-            const isFree = !ev.entryFee || ev.entryFee === 0;
-            const slotsLeft = (ev.totalSlots || 100) - (ev.registeredCount || 0);
-            const percentFilled = Math.min(100, Math.round(((ev.registeredCount || 0) / (ev.totalSlots || 100)) * 100));
-
-            return (
-              <Col key={ev.id || ev._id} md={4}>
-                <div className="p-5 rounded-3xl bg-surface-card border border-border-subtle shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col justify-between h-full space-y-4 relative overflow-hidden group">
-                  <div className="space-y-3">
-                    <div className="flex items-center justify-between">
-                      <span className="text-xs font-bold px-3 py-1 rounded-full bg-vibrant-indigo/15 text-vibrant-indigo">
-                        {ev.category}
-                      </span>
-                      <span className="text-xs font-semibold text-on-surface-variant font-mono bg-surface-container-low px-2.5 py-0.5 rounded-md">
-                        {ev.date}
-                      </span>
-                    </div>
-
-                    <div>
-                      <h3 className="font-display font-bold text-lg text-on-background group-hover:text-vibrant-indigo transition-colors leading-snug">
-                        {ev.title}
-                      </h3>
-                      <p className="text-xs text-outline line-clamp-2 mt-1 leading-relaxed">{ev.description}</p>
-                    </div>
-
-                    <div className="space-y-1 text-xs text-outline">
-                      <p className="flex items-center gap-1.5 mb-1">
-                        <span className="material-symbols-outlined text-[16px] text-vibrant-indigo">location_on</span>
-                        <span className="font-medium text-on-surface">{ev.venue}</span>
-                      </p>
-                      <p className="flex items-center gap-1.5 mb-0">
-                        <span className="material-symbols-outlined text-[16px] text-fresh-mint">schedule</span>
-                        <span>{ev.time || '09:00 AM - 05:00 PM'}</span>
-                      </p>
-                    </div>
-
-                    {/* Slots Progress Bar */}
-                    <div className="space-y-1 pt-1">
-                      <div className="flex justify-between text-[11px] font-semibold">
-                        <span className="text-outline">Registration Status</span>
-                        <span className={slotsLeft <= 20 ? 'text-amber-500 font-bold' : 'text-emerald-600 dark:text-emerald-400'}>
-                          {slotsLeft > 0 ? `${slotsLeft} slots remaining` : 'Housefull'}
-                        </span>
-                      </div>
-                      <ProgressBar
-                        now={percentFilled}
-                        variant={percentFilled > 80 ? 'warning' : 'info'}
-                        className="h-1.5 rounded-full"
-                      />
-                    </div>
-                  </div>
-
-                  <div className="pt-3 border-t border-border-subtle/80 space-y-3">
-                    <div className="flex items-center justify-between text-xs">
-                      <div>
-                        <span className="text-[10px] text-outline block">TICKET FEE</span>
-                        <span className="font-bold text-sm text-on-background">
-                          {isFree ? 'FREE Entry 🎓' : `₹${ev.entryFee}`}
-                        </span>
-                      </div>
-
-                      <span className="text-[11px] text-fresh-mint font-semibold bg-fresh-mint/10 px-2.5 py-1 rounded-lg">
-                        ⚡ {ev.gearTag || 'Marketplace Gear'}
-                      </span>
-                    </div>
-
-                    <div className="flex gap-2">
-                      <button
-                        onClick={() => setSelectedEventForTicket(ev)}
-                        className="flex-1 py-2.5 bg-vibrant-indigo hover:bg-primary-container text-white font-bold text-xs rounded-xl shadow-md transition-all flex items-center justify-center gap-1.5 active:scale-95"
-                      >
-                        <span className="material-symbols-outlined text-[16px]">confirmation_number</span>
-                        {isFree ? 'Register Free 🚀' : `Get Ticket (₹${ev.entryFee}) 🎟️`}
-                      </button>
-
-                      {isAdmin && (
-                        <button
-                          onClick={() => deleteEvent(ev.id || ev._id)}
-                          className="px-2.5 py-2.5 rounded-xl bg-red-50 dark:bg-red-950/40 text-red-600 hover:bg-red-100 transition-colors"
-                          title="Delete Event (Admin)"
-                        >
-                          <span className="material-symbols-outlined text-[16px]">delete</span>
-                        </button>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              </Col>
-            );
-          })}
-        </Row>
-      </section>
-
       {/* Student Wanted Callout Banner */}
       <section className="px-margin-mobile md:px-margin-desktop py-8 max-w-7xl mx-auto">
         <div className="bg-gradient-to-r from-vibrant-indigo/10 via-surface-card to-fresh-mint/10 p-6 sm:p-8 rounded-3xl border border-border-subtle shadow-sm flex flex-col md:flex-row items-center justify-between gap-6">
@@ -579,55 +666,277 @@ export const DiscoverPage = () => {
         </div>
       </section>
 
-      {/* Campus Safety & FAQ Accordion Section */}
-      <section className="px-margin-mobile md:px-margin-desktop py-12 max-w-5xl mx-auto">
-        <div className="text-center mb-8">
-          <span className="text-vibrant-indigo font-bold text-xs uppercase tracking-widest">Campus Guidelines</span>
-          <h2 className="font-headline-lg text-2xl sm:text-3xl font-bold text-on-background mt-1">Frequently Asked Questions & Safety Tips</h2>
-          <p className="text-xs sm:text-sm text-outline mt-1 max-w-lg mx-auto">
-            Everything you need to know about peer-to-peer exchanges and safe on-campus trading.
+      {/* =========================================================================
+          HIGH-IMPACT INTERACTIVE FAQ & CAMPUS SAFETY HUB
+         ========================================================================= */}
+      <section className="px-margin-mobile md:px-margin-desktop py-20 max-w-6xl mx-auto relative">
+        {/* Glow ambient circles */}
+        <div className="absolute top-1/3 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[36rem] h-[36rem] bg-vibrant-indigo/5 rounded-full blur-3xl pointer-events-none"></div>
+        <div className="absolute bottom-10 right-10 w-72 h-72 bg-fresh-mint/5 rounded-full blur-2xl pointer-events-none"></div>
+
+        {/* Section Header */}
+        <div className="text-center max-w-3xl mx-auto mb-12 relative z-10">
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-vibrant-indigo/10 text-vibrant-indigo text-xs font-bold uppercase tracking-widest mb-3 border border-vibrant-indigo/20">
+            <span>🛡️</span> Campus Trust & Guidelines Center
+          </div>
+          <h2 className="font-display text-3xl sm:text-5xl font-extrabold text-on-background tracking-tight">
+            Frequently Asked Questions
+          </h2>
+          <p className="text-sm sm:text-base text-outline mt-3 leading-relaxed">
+            Everything you need to know about peer-to-peer engineering exchanges, instant UPI handovers, event passes, and safe on-campus trading.
           </p>
+
+          {/* Quick Metrics Strip */}
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-8">
+            <div className="p-3.5 rounded-2xl bg-surface-card dark:bg-slate-800/80 border border-border-subtle shadow-sm flex flex-col items-center justify-center">
+              <span className="font-display font-extrabold text-xl text-vibrant-indigo">100%</span>
+              <span className="text-[11px] font-semibold text-outline mt-0.5">Verified Student Auth</span>
+            </div>
+            <div className="p-3.5 rounded-2xl bg-surface-card dark:bg-slate-800/80 border border-border-subtle shadow-sm flex flex-col items-center justify-center">
+              <span className="font-display font-extrabold text-xl text-fresh-mint">₹0</span>
+              <span className="text-[11px] font-semibold text-outline mt-0.5">Zero Commission Fees</span>
+            </div>
+            <div className="p-3.5 rounded-2xl bg-surface-card dark:bg-slate-800/80 border border-border-subtle shadow-sm flex flex-col items-center justify-center">
+              <span className="font-display font-extrabold text-xl text-sunny-amber">4 Hotspots</span>
+              <span className="text-[11px] font-semibold text-outline mt-0.5">Safe Campus Meetup Zones</span>
+            </div>
+            <div className="p-3.5 rounded-2xl bg-surface-card dark:bg-slate-800/80 border border-border-subtle shadow-sm flex flex-col items-center justify-center">
+              <span className="font-display font-extrabold text-xl text-purple-600 dark:text-purple-400">Instant QR</span>
+              <span className="text-[11px] font-semibold text-outline mt-0.5">Digital Event Passports</span>
+            </div>
+          </div>
+
+          {/* Live Search Bar for FAQ */}
+          <div className="mt-8 relative max-w-xl mx-auto">
+            <div className="relative flex items-center">
+              <span className="material-symbols-outlined absolute left-4 text-outline text-[22px] pointer-events-none">
+                search
+              </span>
+              <input
+                type="text"
+                value={faqSearchQuery}
+                onChange={(e) => setFaqSearchQuery(e.target.value)}
+                placeholder="Search questions (e.g., drafter, UPI, meetup, return, tickets)..."
+                className="w-full pl-12 pr-10 py-3.5 rounded-2xl bg-surface-card dark:bg-slate-800/90 border border-border-subtle text-on-background text-sm focus:outline-none focus:ring-2 focus:ring-vibrant-indigo/40 focus:border-vibrant-indigo shadow-sm transition-all placeholder:text-outline/70"
+              />
+              {faqSearchQuery && (
+                <button
+                  onClick={() => setFaqSearchQuery('')}
+                  className="absolute right-3.5 w-6 h-6 rounded-full bg-surface-container-low flex items-center justify-center text-outline hover:text-on-background text-xs"
+                >
+                  ✕
+                </button>
+              )}
+            </div>
+          </div>
+
+          {/* FAQ Category Filter Tabs with Item Count */}
+          <div className="flex flex-wrap justify-center gap-2 mt-6">
+            {FAQ_CATEGORIES.map(cat => {
+              const count = cat === 'All Topics'
+                ? FAQ_DATA.length
+                : FAQ_DATA.filter(f => f.category === cat).length;
+
+              return (
+                <button
+                  key={cat}
+                  onClick={() => setActiveFaqCategory(cat)}
+                  className={`px-4 py-2 rounded-full text-xs font-semibold transition-all border flex items-center gap-1.5 ${
+                    activeFaqCategory === cat
+                      ? 'bg-vibrant-indigo text-white border-vibrant-indigo shadow-md shadow-vibrant-indigo/20 scale-105'
+                      : 'bg-surface-card dark:bg-slate-800 text-on-surface-variant border-border-subtle hover:bg-surface-container-low hover:border-vibrant-indigo/40'
+                  }`}
+                >
+                  <span>{cat}</span>
+                  <span className={`text-[10px] px-1.5 py-0.2 rounded-full ${
+                    activeFaqCategory === cat ? 'bg-white/25 text-white' : 'bg-surface-container-low text-outline'
+                  }`}>
+                    {count}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
         </div>
 
-        <div className="space-y-3">
-          <div className="bg-surface-card p-4 rounded-2xl border border-border-subtle shadow-sm">
-            <h4 className="font-bold text-sm text-on-background flex items-center gap-2 mb-1.5">
-              <span className="material-symbols-outlined text-vibrant-indigo text-[18px]">verified_user</span>
-              How does CampusCart verify students?
-            </h4>
-            <p className="text-xs text-outline leading-relaxed mb-0">
-              Students authenticate with their official college email address and provide their academic department and student ID credentials to ensure a closed, safe campus ecosystem with zero random off-campus strangers.
-            </p>
+        {/* Results Counter if searching */}
+        {faqSearchQuery && (
+          <div className="mb-4 text-xs text-outline text-center">
+            Found <span className="font-bold text-on-background">{filteredFaqs.length}</span> results for "{faqSearchQuery}"
           </div>
+        )}
 
-          <div className="bg-surface-card p-4 rounded-2xl border border-border-subtle shadow-sm">
-            <h4 className="font-bold text-sm text-on-background flex items-center gap-2 mb-1.5">
-              <span className="material-symbols-outlined text-fresh-mint text-[18px]">location_on</span>
-              Where should we meet for item handovers?
-            </h4>
-            <p className="text-xs text-outline leading-relaxed mb-0">
-              Always select one of the designated safe campus meetup spots (e.g. Central Library Lobby, Student Union Quad, Main Canteen, or Engineering Foyer) in daytime hours where you can inspect items in person.
-            </p>
-          </div>
+        {/* Interactive Accordion List */}
+        <div className="space-y-4 relative z-10">
+          {filteredFaqs.length === 0 ? (
+            <div className="text-center py-12 bg-surface-card dark:bg-slate-900 rounded-3xl border border-border-subtle p-8">
+              <span className="material-symbols-outlined text-4xl text-outline mb-2">help_center</span>
+              <h4 className="font-display font-bold text-lg text-on-background mb-1">No matching questions found</h4>
+              <p className="text-xs text-outline max-w-sm mx-auto mb-4">
+                Can't find what you're looking for? Try searching with different keywords or ask our campus student moderators directly.
+              </p>
+              <button
+                onClick={() => setFaqSearchQuery('')}
+                className="px-4 py-2 bg-vibrant-indigo text-white rounded-xl text-xs font-bold"
+              >
+                Clear Search Filter
+              </button>
+            </div>
+          ) : (
+            filteredFaqs.map(faq => {
+              const isOpen = openFaqId === faq.id;
+              const userVote = faqFeedback[faq.id];
 
-          <div className="bg-surface-card p-4 rounded-2xl border border-border-subtle shadow-sm">
-            <h4 className="font-bold text-sm text-on-background flex items-center gap-2 mb-1.5">
-              <span className="material-symbols-outlined text-sunny-amber text-[18px]">payments</span>
-              How do payments work?
-            </h4>
-            <p className="text-xs text-outline leading-relaxed mb-0">
-              CampusCart charges zero transaction fees. Buyers inspect physical textbooks, electronics, or dorm essentials in-person during the on-campus meetup and pay the seller directly using UPI or cash.
-            </p>
-          </div>
+              return (
+                <div
+                  key={faq.id}
+                  onClick={() => toggleFaq(faq.id)}
+                  className={`rounded-3xl border transition-all duration-300 cursor-pointer overflow-hidden ${
+                    isOpen
+                      ? 'bg-surface-card dark:bg-slate-800/95 border-vibrant-indigo shadow-lg ring-1 ring-vibrant-indigo/30'
+                      : 'bg-surface-card dark:bg-slate-900 border-border-subtle hover:border-vibrant-indigo/50 hover:shadow-md'
+                  }`}
+                >
+                  <div className="p-5 sm:p-6">
+                    <div className="flex items-start justify-between gap-3 sm:gap-4">
+                      <div className="flex items-start sm:items-center gap-3.5">
+                        <div className={`w-11 h-11 rounded-2xl flex items-center justify-center flex-shrink-0 shadow-sm ${faq.iconColor}`}>
+                          <span className="material-symbols-outlined text-[22px]">{faq.icon}</span>
+                        </div>
 
-          <div className="bg-surface-card p-4 rounded-2xl border border-border-subtle shadow-sm">
-            <h4 className="font-bold text-sm text-on-background flex items-center gap-2 mb-1.5">
-              <span className="material-symbols-outlined text-vibrant-indigo text-[18px]">campaign</span>
-              What is the Student Wanted Bulletin?
-            </h4>
-            <p className="text-xs text-outline leading-relaxed mb-0">
-              If an item you need is not currently listed for sale, you can post a requirement on the Student Wanted feed. Fellow students with that item will see your post and contact you directly via chat.
-            </p>
+                        <div>
+                          <div className="flex flex-wrap items-center gap-2 mb-1.5">
+                            <span className="text-[10px] font-bold uppercase tracking-wider text-vibrant-indigo bg-vibrant-indigo/10 dark:bg-indigo-950/60 px-2.5 py-0.5 rounded-full inline-flex items-center gap-1 border border-vibrant-indigo/20">
+                              <span>🏷️</span> {faq.badge}
+                            </span>
+                            <span className="text-[10px] font-medium text-outline">
+                              • {faq.category}
+                            </span>
+                          </div>
+                          <h4 className="font-display font-bold text-sm sm:text-base text-on-background mb-0 leading-snug">
+                            {faq.question}
+                          </h4>
+                        </div>
+                      </div>
+
+                      <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 bg-surface-container-low dark:bg-slate-800 text-outline transition-transform duration-300 ${
+                        isOpen ? 'rotate-180 text-vibrant-indigo bg-vibrant-indigo/10' : ''
+                      }`}>
+                        <span className="material-symbols-outlined text-[22px]">keyboard_arrow_down</span>
+                      </div>
+                    </div>
+
+                    {/* Expanded Rich Answer */}
+                    {isOpen && (
+                      <div className="mt-5 pt-4 border-t border-border-subtle/80 space-y-3.5 animate-fadeIn" onClick={(e) => e.stopPropagation()}>
+                        <p className="text-xs sm:text-sm text-outline leading-relaxed mb-0">
+                          {faq.answer}
+                        </p>
+
+                        {/* Step Breakdown if available */}
+                        {faq.steps && (
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-2">
+                            {faq.steps.map((step, idx) => (
+                              <div key={idx} className="p-2.5 rounded-xl bg-surface-container-low dark:bg-slate-900 border border-border-subtle flex items-center gap-2 text-xs text-on-surface-variant font-medium">
+                                <span className="w-5 h-5 rounded-full bg-vibrant-indigo text-white flex items-center justify-center text-[10px] font-bold flex-shrink-0">
+                                  {idx + 1}
+                                </span>
+                                <span>{step}</span>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+
+                        {/* Feature Highlight Chips */}
+                        {faq.highlights && (
+                          <div className="flex flex-wrap gap-2 pt-1">
+                            {faq.highlights.map((h, idx) => (
+                              <span key={idx} className="inline-flex items-center gap-1 text-[11px] font-medium px-2.5 py-1 rounded-lg bg-surface-container-low dark:bg-slate-900 border border-border-subtle text-on-surface-variant">
+                                <span className="text-fresh-mint font-bold">✓</span> {h}
+                              </span>
+                            ))}
+                          </div>
+                        )}
+
+                        {/* Pro Tip Box */}
+                        {faq.tips && (
+                          <div className="p-3 bg-fresh-mint/10 dark:bg-emerald-950/40 rounded-2xl border border-fresh-mint/20 text-xs text-fresh-mint font-medium flex items-start gap-2.5 shadow-inner">
+                            <span className="material-symbols-outlined text-[18px] flex-shrink-0 mt-0.5">lightbulb</span>
+                            <div className="leading-snug">
+                              <span className="font-bold">Campus Pro-Tip:</span> {faq.tips}
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Helpful Feedback Buttons */}
+                        <div className="pt-2 border-t border-border-subtle/40 flex items-center justify-between text-xs text-outline">
+                          <span className="text-[11px]">Was this answer helpful?</span>
+                          <div className="flex items-center gap-2">
+                            <button
+                              onClick={(e) => handleFeedback(faq.id, 'yes', e)}
+                              className={`px-2.5 py-1 rounded-lg border text-[11px] font-semibold flex items-center gap-1 transition-all ${
+                                userVote === 'yes'
+                                  ? 'bg-fresh-mint text-white border-fresh-mint'
+                                  : 'bg-surface-card hover:bg-surface-container-low border-border-subtle text-on-surface-variant'
+                              }`}
+                            >
+                              <span>👍 Yes</span>
+                            </button>
+                            <button
+                              onClick={(e) => handleFeedback(faq.id, 'no', e)}
+                              className={`px-2.5 py-1 rounded-lg border text-[11px] font-semibold flex items-center gap-1 transition-all ${
+                                userVote === 'no'
+                                  ? 'bg-error-red text-white border-error-red'
+                                  : 'bg-surface-card hover:bg-surface-container-low border-border-subtle text-on-surface-variant'
+                              }`}
+                            >
+                              <span>👎 No</span>
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              );
+            })
+          )}
+        </div>
+
+        {/* Campus Safety Code & Help Callout */}
+        <div className="mt-14 bg-gradient-to-br from-indigo-900 via-indigo-950 to-slate-950 rounded-3xl p-8 sm:p-10 text-white shadow-xl relative overflow-hidden border border-white/10 z-10">
+          <div className="absolute -top-16 -right-16 w-64 h-64 bg-vibrant-indigo/30 rounded-full blur-3xl pointer-events-none"></div>
+          <div className="absolute -bottom-16 -left-16 w-64 h-64 bg-fresh-mint/20 rounded-full blur-3xl pointer-events-none"></div>
+
+          <div className="relative z-10 flex flex-col lg:flex-row items-center justify-between gap-8">
+            <div className="space-y-3 text-center lg:text-left">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 backdrop-blur-md text-xs font-bold uppercase tracking-wider text-white border border-white/20">
+                <span>⭐</span> Peer Safety Guarantee
+              </div>
+              <h3 className="font-display text-2xl sm:text-3xl font-extrabold tracking-tight text-white mb-0">
+                Have an unlisted question or need immediate campus support?
+              </h3>
+              <p className="text-xs sm:text-sm text-white/80 max-w-xl leading-relaxed mb-0">
+                Our active student moderators and department representatives ensure every trade is trustworthy, polite, and safe.
+              </p>
+            </div>
+
+            <div className="flex flex-wrap gap-3.5 flex-shrink-0 justify-center">
+              <button
+                onClick={() => setActiveTab('browse')}
+                className="px-5 py-3 bg-white text-slate-900 font-bold text-xs rounded-xl hover:bg-slate-100 transition-all shadow-md active:scale-95 flex items-center gap-2"
+              >
+                <span className="material-symbols-outlined text-[18px]">storefront</span>
+                Explore Catalog
+              </button>
+              <button
+                onClick={() => setIsPostRequestOpen(true)}
+                className="px-5 py-3 bg-vibrant-indigo hover:bg-indigo-600 text-white font-bold text-xs rounded-xl shadow-md transition-all active:scale-95 flex items-center gap-2 border border-indigo-400/30"
+              >
+                <span className="material-symbols-outlined text-[18px]">post_add</span>
+                Post Requirement
+              </button>
+            </div>
           </div>
         </div>
       </section>

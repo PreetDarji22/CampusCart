@@ -89,7 +89,17 @@ export const AppNavbar = () => {
                 : 'text-on-surface-variant dark:text-slate-300 hover:text-primary'
             }`}
           >
-            Browse
+            Browse Marketplace
+          </button>
+          <button
+            onClick={() => setActiveTab('events')}
+            className={`font-label-md text-label-md transition-colors py-1 flex items-center gap-1.5 ${
+              activeTab === 'events'
+                ? 'text-primary dark:text-vibrant-indigo border-b-2 border-primary dark:border-vibrant-indigo font-semibold'
+                : 'text-on-surface-variant dark:text-slate-300 hover:text-primary'
+            }`}
+          >
+            <span></span> Events Hub
           </button>
           <button
             onClick={handleSellerClick}

@@ -37,6 +37,11 @@ export const AppFooter = () => {
                 </button>
               </li>
               <li>
+                <button onClick={() => setActiveTab('events')} className="hover:text-white transition-colors">
+                  Campus Events Hub 🎪
+                </button>
+              </li>
+              <li>
                 <button onClick={() => setActiveTab('seller')} className="hover:text-white transition-colors">
                   Seller Hub
                 </button>
