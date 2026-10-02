@@ -169,6 +169,136 @@ export const INITIAL_PRODUCTS = [
   }
 ];
 
+export const CAMPUS_MEETUP_SPOTS = [
+  'Central Library Lobby & Steps',
+  'Student Union Quad & Cafe',
+  'Main Canteen / Food Court',
+  'Hostel Block A/B Lounge',
+  'Engineering Building Foyer',
+  'Sports Complex Main Gate',
+  'Campus Main Quad & Clock Tower'
+];
+
+export const INITIAL_REQUESTS = [
+  {
+    id: 'req-1',
+    title: 'Casio FX-991EX Scientific Calculator',
+    category: 'Electronics',
+    department: 'Engineering & Tech',
+    description: 'Looking to buy or borrow a Casio 991EX or 991CW for mid-semester engineering math exams this Friday.',
+    urgent: true,
+    budget: '₹600 - ₹900',
+    preferredMeetup: 'Engineering Building Foyer',
+    postedBy: {
+      name: 'Rohan Sharma',
+      avatar: 'https://lh3.googleusercontent.com/aida-public/AB6AXuCHwHG2RCsTAyIkrDE-cuhI4oKCtuyGAXNMaVjDNkOM7119zMKtyOTfwKTDlBRzfg8Cj6oawtA72FUm-vr8hudKEqGDEXmTvf4FJ26vWqOW9op0gP8VZgGZUQCyrnIHDOxOr103thOa5M5zoUxMViAOR3qJfwkHZZX9BRcb14q2Li8Z1IJO3luBBPcO2uWKdiPFGZ3eTZYhnAwRlRwD4ifVoGeCfHkoJkzfLuGkYC2hbipm_6_n4oRPcQ',
+      department: 'Mechanical Engineering',
+      year: 'Sophomore (Year 2)',
+      verified: true
+    },
+    postedAt: '1 hour ago'
+  },
+  {
+    id: 'req-2',
+    title: 'Engineering Mini Drafter & Sheet Container',
+    category: 'Engineering & Tech',
+    department: 'Engineering & Tech',
+    description: 'Need a working mini drafter with scales and a waterproof drawing sheet holder for Engineering Graphics lab.',
+    urgent: true,
+    budget: '₹400 - ₹600',
+    preferredMeetup: 'Student Union Quad & Cafe',
+    postedBy: {
+      name: 'Ananya Verma',
+      avatar: 'https://lh3.googleusercontent.com/aida-public/AB6AXuAz2CH0yYSHNS5GQy3djHi0aXKsO8QKdBz4I6pBw1zaxjtqJtmMjHAFMMaklFLHXwmljKi5BrtIldfhOJLPx3x4-SyIGsNLTpg2HUjBLNf-8rnhhPCWoiXgKRTFHxxxQwEbdyH7AzkMkcmc2slH-VaLYIO2kavjtCrqcCgUbs3LkanlKuU73c52ixKo8btomu72Wn18Eduwz0ZL9Spl81i9nbEuPKp_v0eTgVkVmC8-xc12fmKgi9YWcQ',
+      department: 'Civil Engineering',
+      year: 'Freshman (Year 1)',
+      verified: true
+    },
+    postedAt: '3 hours ago'
+  },
+  {
+    id: 'req-3',
+    title: 'Cotton Lab Coat (Size L) & Safety Goggles',
+    category: 'Dorm Essentials',
+    department: 'Medicine & Bio',
+    description: 'Urgent requirement for Chemistry / Biology lab practical sessions. Must be white, clean condition.',
+    urgent: false,
+    budget: '₹250 - ₹350',
+    preferredMeetup: 'Main Canteen / Food Court',
+    postedBy: {
+      name: 'Kavita Nair',
+      avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150',
+      department: 'Biotechnology',
+      year: 'Junior (Year 3)',
+      verified: true
+    },
+    postedAt: 'Yesterday'
+  },
+  {
+    id: 'req-4',
+    title: 'Arduino Uno Starter Kit or ESP32 Board',
+    category: 'Electronics',
+    department: 'Computer Science',
+    description: 'Looking for microcontroller board and basic sensor modules for IoT hackathon prototype.',
+    urgent: true,
+    budget: '₹500 - ₹1,000',
+    preferredMeetup: 'Central Library Lobby & Steps',
+    postedBy: {
+      name: 'Dev Patel',
+      avatar: 'https://lh3.googleusercontent.com/aida-public/AB6AXuAC6axvz-WnymA7qkF6OWnwgQwttPzd-FZdVNywAlAPxc7ADECb9UN2RIW6zjGve2VcdHlrpYw-obC0BSTska8AfW8Mstrl37lE2nETDGFtGX3co1HkssIbFvFTRzYkQv97iWojRTk49D9MI5KjTPWoRF0nVytMdfsO1hEsEeKHDhlmnxjaWe162rMo-mOD5Y0Hm5OFum_8AslQ1XW6B2jRpPekone3dSC5v9sMhOkTUF5yFwF-rZKT-A',
+      department: 'Computer Science',
+      year: 'Senior (Year 4)',
+      verified: true
+    },
+    postedAt: '2 days ago'
+  }
+];
+
+export const CAMPUS_EVENTS = [
+  {
+    id: 'event-1',
+    title: 'Campus Hackathon 2026',
+    description: '48-hour annual hackathon featuring AI, Web3, and Embedded Hardware tracks. Food and mentorship included.',
+    date: 'Oct 18 - 20, 2026',
+    time: '09:00 AM - 06:00 PM',
+    venue: 'Main Innovation Lab & Central Auditorium',
+    category: 'Hackathon',
+    entryFee: 0,
+    totalSlots: 200,
+    registeredCount: 42,
+    gearTag: 'Hardware & Microcontrollers in High Demand',
+    organizer: 'Engineering Student Council'
+  },
+  {
+    id: 'event-2',
+    title: 'Robotics & AI Expo',
+    description: 'Project exhibition featuring bot combat, line followers, drone simulations, and IoT demos.',
+    date: 'Nov 5, 2026',
+    time: '10:00 AM - 04:30 PM',
+    venue: 'Engineering Complex Arena - Hall B',
+    category: 'Exhibition',
+    entryFee: 150,
+    totalSlots: 150,
+    registeredCount: 68,
+    gearTag: 'Sensors, Soldering Kits & Cables Wanted',
+    organizer: 'Robotics & Automation Club'
+  },
+  {
+    id: 'event-3',
+    title: 'Annual Inter-College Sports Week',
+    description: 'Multi-sport tournament including Cricket, Badminton, Football, Table Tennis, and Volleyball.',
+    date: 'Nov 14 - 18, 2026',
+    time: '07:30 AM - 06:00 PM',
+    venue: 'University Sports Complex & Track Ground',
+    category: 'Sports',
+    entryFee: 200,
+    totalSlots: 300,
+    registeredCount: 115,
+    gearTag: 'Badminton Rackets, Footballs & Fitness Gear',
+    organizer: 'Campus Sports Committee'
+  }
+];
+
 export const CATEGORIES = [
   'All Categories',
   'Textbooks',
@@ -181,10 +311,17 @@ export const CATEGORIES = [
 
 export const DEPARTMENTS = [
   'All Departments',
-  'Computer Science',
-  'Engineering & Tech',
-  'Medicine & Bio',
-  'Economics & Business',
-  'Architecture & Design',
-  'Campus Apparel'
+  'Computer Science & Engineering (CSE / CS)',
+  'Information Technology (IT)',
+  'Artificial Intelligence & Machine Learning (AIML)',
+  'Electronics & Communication Engineering (ECE / EC)',
+  'Mechanical Engineering (ME)',
+  'Electrical Engineering (EE)',
+  'Instrumentation & Control Engineering (IC)',
+  'Automobile Engineering (AE)',
+  'Civil Engineering (CE)',
+  'Robotics & Automation (Robo)',
+  'Environmental Engineering (Env)'
 ];
+
+

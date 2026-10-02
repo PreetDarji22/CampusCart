@@ -3,7 +3,16 @@ import { Modal, Button, Badge, Row, Col } from 'react-bootstrap';
 import { useApp } from '../../context/AppContext';
 
 export const ProductDetailModal = () => {
-  const { selectedProduct, setSelectedProduct, toggleWishlist, wishlist, addToCart } = useApp();
+  const {
+    selectedProduct,
+    setSelectedProduct,
+    toggleWishlist,
+    wishlist,
+    addToCart,
+    createPurchaseRequest,
+    openChatWith,
+    triggerToast
+  } = useApp();
 
   if (!selectedProduct) return null;
 
@@ -14,10 +23,23 @@ export const ProductDetailModal = () => {
     window.open(`https://wa.me/?text=${text}`, '_blank');
   };
 
+  const handleClassWhatsAppShare = () => {
+    const shareText = encodeURIComponent(`🎓 *CampusCart Listing Alert*\n\nHey everyone! Check out "${selectedProduct.title}" in ${selectedProduct.department} for only ₹${selectedProduct.price} on CampusCart.\nMeetup Spot: ${selectedProduct.seller.meetupLocation}`);
+    window.open(`https://api.whatsapp.com/send?text=${shareText}`, '_blank');
+  };
+
   const handleEmailContact = () => {
     const subject = encodeURIComponent(`CampusCart Inquiry: ${selectedProduct.title}`);
     const body = encodeURIComponent(`Hi ${selectedProduct.seller.name},\n\nI saw your listing for "${selectedProduct.title}" (₹${selectedProduct.price}) on CampusCart and would like to meet up at ${selectedProduct.seller.meetupLocation} to complete the purchase.\n\nBest regards,\nStudent`);
     window.open(`mailto:seller@campus.edu?subject=${subject}&body=${body}`, '_blank');
+  };
+
+  const handleInAppChat = () => {
+    openChatWith(
+      { name: selectedProduct.seller.name, avatar: selectedProduct.seller.avatar },
+      { title: selectedProduct.title, price: selectedProduct.price, image: selectedProduct.image }
+    );
+    setSelectedProduct(null);
   };
 
   return (
@@ -49,6 +71,7 @@ export const ProductDetailModal = () => {
               <button
                 onClick={(e) => toggleWishlist(selectedProduct.id, e)}
                 className="absolute top-3 right-3 w-10 h-10 rounded-full bg-white/90 backdrop-blur-sm flex items-center justify-center text-outline hover:text-error-red transition-colors shadow-sm"
+                title="Add to Favorites"
               >
                 <span className={`material-symbols-outlined text-[20px] ${isLiked ? 'text-error-red filled' : ''}`}>
                   favorite
@@ -125,30 +148,52 @@ export const ProductDetailModal = () => {
             {/* Actions */}
             <div className="space-y-2 pt-2">
               <Button
-                onClick={(e) => addToCart(selectedProduct, e)}
-                className="w-full bg-vibrant-indigo hover:bg-primary-container text-white border-0 font-label-md py-2.5 rounded-lg flex items-center justify-center gap-2 shadow-sm"
+                onClick={() => {
+                  createPurchaseRequest(selectedProduct);
+                  setSelectedProduct(null);
+                }}
+                className="w-full bg-fresh-mint hover:bg-emerald-600 text-white font-bold py-2.5 rounded-lg flex items-center justify-center gap-2 shadow-md border-0"
               >
-                <span className="material-symbols-outlined text-[18px]">shopping_cart</span>
-                Add to Campus Cart
+                <span className="material-symbols-outlined text-[20px]">shopping_basket</span>
+                Send Purchase Request to Seller
               </Button>
 
               <div className="grid grid-cols-2 gap-2">
                 <Button
-                  onClick={handleWhatsAppContact}
-                  variant="outline-success"
-                  className="w-full text-xs font-semibold py-2 rounded-lg flex items-center justify-center gap-1"
+                  onClick={handleInAppChat}
+                  className="bg-vibrant-indigo hover:bg-primary-container text-white font-semibold py-2 rounded-lg flex items-center justify-center gap-1.5 text-xs border-0 shadow-sm"
                 >
-                  <span className="material-symbols-outlined text-[16px]">chat</span>
-                  WhatsApp Seller
+                  <span className="material-symbols-outlined text-[18px]">chat</span>
+                  Chat in App
                 </Button>
 
                 <Button
-                  onClick={handleEmailContact}
-                  variant="outline-secondary"
-                  className="w-full text-xs font-semibold py-2 rounded-lg flex items-center justify-center gap-1"
+                  onClick={(e) => addToCart(selectedProduct, e)}
+                  variant="outline-primary"
+                  className="border-vibrant-indigo text-vibrant-indigo hover:bg-vibrant-indigo hover:text-white font-semibold py-2 rounded-lg flex items-center justify-center gap-1.5 text-xs shadow-sm"
                 >
-                  <span className="material-symbols-outlined text-[16px]">mail</span>
-                  Email Student
+                  <span className="material-symbols-outlined text-[18px]">shopping_cart</span>
+                  Add to Cart
+                </Button>
+              </div>
+
+              <div className="grid grid-cols-2 gap-2 pt-1">
+                <Button
+                  onClick={handleClassWhatsAppShare}
+                  variant="outline-success"
+                  className="w-full text-xs font-semibold py-1.5 rounded-lg flex items-center justify-center gap-1"
+                >
+                  <span className="material-symbols-outlined text-[16px]">share</span>
+                  Share to Class WhatsApp
+                </Button>
+
+                <Button
+                  onClick={handleWhatsAppContact}
+                  variant="outline-secondary"
+                  className="w-full text-xs font-semibold py-1.5 rounded-lg flex items-center justify-center gap-1"
+                >
+                  <span className="material-symbols-outlined text-[16px]">forum</span>
+                  WhatsApp Seller
                 </Button>
               </div>
             </div>

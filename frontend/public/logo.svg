@@ -1,0 +1,70 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="none">
+  <defs>
+    <linearGradient id="gradCart" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#4F46E5" />
+      <stop offset="50%" stop-color="#6366F1" />
+      <stop offset="100%" stop-color="#06B6D4" />
+    </linearGradient>
+    <linearGradient id="gradCap" x1="0%" y1="100%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#4338CA" />
+      <stop offset="100%" stop-color="#818CF8" />
+    </linearGradient>
+    <linearGradient id="gradAccent" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#10B981" />
+      <stop offset="100%" stop-color="#059669" />
+    </linearGradient>
+    <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="8" stdDeviation="12" flood-color="#4F46E5" flood-opacity="0.35" />
+    </filter>
+  </defs>
+
+  <!-- Background rounded squircle container -->
+  <rect width="512" height="512" rx="128" fill="url(#gradCart)" />
+  <rect x="12" y="12" width="488" height="488" rx="116" stroke="rgba(255,255,255,0.2)" stroke-width="6" fill="none" />
+
+  <!-- Graduation Cap (Top Header) -->
+  <g transform="translate(0, -15)">
+    <!-- Cap Diamond -->
+    <path d="M 256 120 L 390 185 L 256 250 L 122 185 Z" fill="#FFFFFF" filter="url(#glow)" />
+    <path d="M 256 126 L 375 185 L 256 242 L 137 185 Z" fill="url(#gradCap)" />
+
+    <!-- Cap Skull Base -->
+    <path d="M 170 215 L 170 270 C 170 305 342 305 342 270 L 342 215 Z" fill="#FFFFFF" opacity="0.95" />
+    <path d="M 180 220 L 180 265 C 180 292 332 292 332 265 L 332 220 Z" fill="url(#gradCart)" />
+
+    <!-- Tassel String & Bob -->
+    <path d="M 256 185 Q 395 195 405 240 L 405 285" stroke="#FDE047" stroke-width="10" stroke-linecap="round" fill="none" />
+    <circle cx="405" cy="295" r="14" fill="#FACC15" />
+    <circle cx="256" cy="185" r="10" fill="#FDE047" />
+  </g>
+
+  <!-- Shopping Cart Basket (Bottom Core) -->
+  <g transform="translate(10, 30)">
+    <!-- Basket Outline & Wire Grid -->
+    <path d="M 145 280 L 367 280 L 342 385 C 339 398 328 408 315 408 L 197 408 C 184 408 173 398 170 385 Z" 
+          fill="#FFFFFF" />
+    
+    <!-- Basket Inner Gradient Body -->
+    <path d="M 155 292 L 357 292 L 335 378 C 333 388 325 396 314 396 L 198 396 C 187 396 179 388 177 378 Z" 
+          fill="url(#gradCart)" />
+
+    <!-- Basket Front Grid Lines -->
+    <line x1="205" y1="300" x2="215" y2="390" stroke="#FFFFFF" stroke-width="7" stroke-linecap="round" opacity="0.8" />
+    <line x1="256" y1="300" x2="256" y2="390" stroke="#FFFFFF" stroke-width="7" stroke-linecap="round" opacity="0.8" />
+    <line x1="307" y1="300" x2="297" y2="390" stroke="#FFFFFF" stroke-width="7" stroke-linecap="round" opacity="0.8" />
+    <line x1="168" y1="345" x2="344" y2="345" stroke="#FFFFFF" stroke-width="7" stroke-linecap="round" opacity="0.8" />
+
+    <!-- Cart Wheels -->
+    <circle cx="205" cy="435" r="22" fill="#FFFFFF" />
+    <circle cx="205" cy="435" r="12" fill="url(#gradAccent)" />
+    
+    <circle cx="307" cy="435" r="22" fill="#FFFFFF" />
+    <circle cx="307" cy="435" r="12" fill="url(#gradAccent)" />
+
+    <!-- Cart Handle -->
+    <path d="M 125 280 L 145 280 L 155 330" stroke="#FFFFFF" stroke-width="12" stroke-linecap="round" stroke-linejoin="round" fill="none" />
+  </g>
+
+  <!-- Sparkle / Verified Star -->
+  <path d="M 370 100 Q 370 125 395 125 Q 370 125 370 150 Q 370 125 345 125 Q 370 125 370 100 Z" fill="#FACC15" />
+</svg>

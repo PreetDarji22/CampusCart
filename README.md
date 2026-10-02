@@ -87,28 +87,43 @@ CampusCart/
 
 ---
 
-## 🛠️ Upcoming / Remaining Backend Features (Syllabus Roadmap)
+## 🛠️ Implemented Backend Architecture & Tech Stack
 
 | Module | Feature Target | Description | Status |
 | :--- | :--- | :--- | :--- |
-| **Module 5** | **Node.js & Express Server Setup** | Initialize `backend/` server, setup package dependencies, Express routing middleware, and environment configurations. | ⏳ Planned |
-| **Module 5** | **RESTful API Endpoints** | Build CRUD endpoints for `/api/products`, `/api/categories`, `/api/user/listings`, and `/api/contact`. | ⏳ Planned |
-| **Module 5** | **Database Integration (MongoDB / MySQL)** | Create database schemas (User, Product, Category, Order) with Mongoose / Sequelize ORM. | ⏳ Planned |
-| **Module 5** | **Postman API Suite** | Create Postman testing collections for verifying HTTP request status codes and JSON payloads. | ⏳ Planned |
-| **Module 5** | **Authentication & Security** | Implement JWT-based student login/registration, password hashing with `bcrypt`, and CORS middleware. | ⏳ Planned |
+| **Module 5** | **Node.js & Express Server Setup** | Initialized `server/` with MVC architecture, CORS, Cookie Parser, Morgan logging, and central error handling. | ✅ Completed |
+| **Module 5** | **RESTful API Endpoints** | Built complete CRUD endpoints for `/api/products`, `/api/categories`, `/api/orders`, `/api/wishlist`, `/api/chats`, `/api/reviews`, `/api/notifications`, `/api/admin`, and `/api/upload`. | ✅ Completed |
+| **Module 5** | **Database Integration (MongoDB / Mongoose)** | Defined 10 Mongoose schemas (`User`, `Product`, `Category`, `Order`, `Wishlist`, `Chat`, `Message`, `Review`, `Notification`, `Report`). | ✅ Completed |
+| **Module 5** | **Authentication & Security** | Implemented JWT-based access/refresh token pattern, password hashing with `bcryptjs`, and role-based middleware (`protect`, `adminOnly`). | ✅ Completed |
+| **Module 5** | **Real-Time Communication** | Socket.io server integrated for real-time chat rooms (`chat:<id>`) and live notifications (`user:<id>`). | ✅ Completed |
 
 ---
 
-## 💻 Running the Frontend Locally
+## 💻 Running the Full MERN App Locally
 
+### 1. Start Backend Express API (Port 5000)
 ```bash
-# 1. Navigate to the frontend directory
-cd CampusCart/frontend
+# Navigate to backend server directory
+cd CampusCart/server
 
-# 2. Install dependencies
+# Install dependencies (if first time)
 npm install
 
-# 3. Start the Vite development server
-npx vite --port 3000
+# Seed sample campus data into MongoDB
+npm run seed
+
+# Start server in development mode
+npm run dev
 ```
-Open **[http://localhost:3000](http://localhost:3000)** in your browser to view the app!
+
+### 2. Start Frontend React Client (Port 3000)
+```bash
+# Navigate to frontend directory
+cd CampusCart/frontend
+
+# Start Vite client
+npm run dev
+```
+
+Open **[http://localhost:3000](http://localhost:3000)** in your browser to view CampusCart running with full database persistence!
+

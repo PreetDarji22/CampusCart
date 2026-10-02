@@ -59,7 +59,7 @@ export const CaptchaWidget = ({ onVerify }) => {
           Verified Human! You can now publish your listing.
         </div>
       ) : (
-        <Form onSubmit={handleCheck}>
+        <div>
           <div className="flex items-center gap-2">
             <span className="px-3 py-1.5 bg-surface-card rounded border font-mono font-bold text-sm text-on-background shadow-sm">
               {num1} + {num2} = ?
@@ -70,16 +70,21 @@ export const CaptchaWidget = ({ onVerify }) => {
                 placeholder="Enter answer"
                 value={userAnswer}
                 onChange={(e) => setUserAnswer(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    e.preventDefault();
+                    handleCheck(e);
+                  }
+                }}
                 className="text-sm py-1"
-                required
               />
-              <Button type="submit" variant="primary" size="sm" className="bg-vibrant-indigo border-0">
+              <Button type="button" onClick={handleCheck} variant="primary" size="sm" className="bg-vibrant-indigo border-0">
                 Verify
               </Button>
             </InputGroup>
           </div>
           {errorMsg && <p className="text-xs text-error-red mt-1 mb-0 font-medium">{errorMsg}</p>}
-        </Form>
+        </div>
       )}
     </div>
   );

@@ -2,6 +2,8 @@ import React from 'react';
 import { Navbar, Nav, Container, Form, InputGroup, Badge, Button } from 'react-bootstrap';
 import { useApp } from '../../context/AppContext';
 
+import { CampusCartLogo } from '../common/CampusCartLogo';
+
 export const AppNavbar = () => {
   const {
     activeTab,
@@ -12,7 +14,13 @@ export const AppNavbar = () => {
     wishlist,
     cart,
     currentUser,
+    isAuthenticated,
+    logoutUser,
+    requireAuth,
     setIsAddListingOpen,
+    setIsAuthOpen,
+    setIsCartOpen,
+    setIsWishlistOpen,
     isDarkMode,
     toggleDarkMode
   } = useApp();
@@ -20,6 +28,14 @@ export const AppNavbar = () => {
   const onSearchSubmit = (e) => {
     e.preventDefault();
     handleSearchNav(searchQuery);
+  };
+
+  const handleSellerClick = () => {
+    requireAuth(() => setActiveTab('seller'));
+  };
+
+  const handleSellItemClick = () => {
+    requireAuth(() => setIsAddListingOpen(true));
   };
 
   return (
@@ -31,9 +47,10 @@ export const AppNavbar = () => {
         {/* Brand */}
         <Navbar.Brand
           onClick={() => setActiveTab('discover')}
-          className="cursor-pointer font-display text-2xl font-bold tracking-tight text-primary dark:text-vibrant-indigo hover:opacity-90 transition-opacity"
+          className="cursor-pointer flex items-center gap-2.5 font-display text-2xl font-bold tracking-tight text-primary dark:text-white hover:opacity-90 transition-opacity"
         >
-          Campus<span className="text-vibrant-indigo">Cart</span>
+          <CampusCartLogo size={34} />
+          <span>Campus<span className="text-vibrant-indigo">Cart</span></span>
         </Navbar.Brand>
 
         {/* Desktop Search Bar */}
@@ -62,7 +79,7 @@ export const AppNavbar = () => {
                 : 'text-on-surface-variant dark:text-slate-300 hover:text-primary'
             }`}
           >
-            Discover
+            Discover Overview
           </button>
           <button
             onClick={() => setActiveTab('browse')}
@@ -75,14 +92,14 @@ export const AppNavbar = () => {
             Browse
           </button>
           <button
-            onClick={() => setActiveTab('seller')}
+            onClick={handleSellerClick}
             className={`font-label-md text-label-md transition-colors py-1 ${
               activeTab === 'seller'
                 ? 'text-primary dark:text-vibrant-indigo border-b-2 border-primary dark:border-vibrant-indigo font-semibold'
                 : 'text-on-surface-variant dark:text-slate-300 hover:text-primary'
             }`}
           >
-            Seller Hub
+            Student Dashboard
           </button>
         </Nav>
 
@@ -101,7 +118,7 @@ export const AppNavbar = () => {
 
           {/* Quick List Item Button */}
           <Button
-            onClick={() => setIsAddListingOpen(true)}
+            onClick={handleSellItemClick}
             className="hidden sm:flex items-center gap-1 bg-vibrant-indigo hover:bg-primary-container text-white border-0 font-label-md rounded-full px-4 py-2 text-sm shadow-level-1 hover:shadow-level-2 transition-all active:scale-95"
           >
             <span className="material-symbols-outlined text-[18px]">add_circle</span>
@@ -110,7 +127,7 @@ export const AppNavbar = () => {
 
           {/* Favorites/Wishlist Badge */}
           <button
-            onClick={() => setActiveTab('browse')}
+            onClick={() => setIsWishlistOpen(true)}
             className="p-2 text-on-surface-variant dark:text-slate-200 hover:bg-surface-container-high/60 dark:hover:bg-slate-800 rounded-full transition-all relative"
             title="Wishlist"
           >
@@ -128,7 +145,7 @@ export const AppNavbar = () => {
 
           {/* Cart Icon & Counter */}
           <button
-            onClick={() => setActiveTab('browse')}
+            onClick={() => setIsCartOpen(true)}
             className="p-2 text-on-surface-variant dark:text-slate-200 hover:bg-surface-container-high/60 dark:hover:bg-slate-800 rounded-full transition-all relative"
             title="Shopping Cart"
           >
@@ -143,18 +160,43 @@ export const AppNavbar = () => {
             )}
           </button>
 
-          {/* Profile Avatar */}
-          <button
-            onClick={() => setActiveTab('seller')}
-            className="ml-2 w-9 h-9 rounded-full overflow-hidden border-2 border-surface-variant hover:border-vibrant-indigo transition-colors flex-shrink-0"
-            title={`${currentUser.name} (${currentUser.department})`}
-          >
-            <img
-              src={currentUser.avatar}
-              alt={currentUser.name}
-              className="w-full h-full object-cover"
-            />
-          </button>
+          {!isAuthenticated ? (
+            <Button
+              variant="outline-primary"
+              onClick={() => setIsAuthOpen(true)}
+              className="hidden sm:flex items-center gap-1 bg-vibrant-indigo text-white font-label-md rounded-full px-4 py-1.5 text-xs font-semibold shadow-sm hover:opacity-90 transition-all border-0"
+            >
+              <span className="material-symbols-outlined text-[16px]">login</span>
+              Login / Register
+            </Button>
+          ) : (
+            <div className="flex items-center gap-2">
+              {currentUser?.role === 'admin' && (
+                <span className="hidden lg:inline-flex items-center gap-1 text-[11px] font-bold text-amber-500 bg-amber-50 dark:bg-amber-950/60 border border-amber-300 dark:border-amber-800 px-2 py-0.5 rounded-full">
+                  🛡️ Admin
+                </span>
+              )}
+              <button
+                onClick={() => setActiveTab('seller')}
+                className="ml-1 w-9 h-9 rounded-full overflow-hidden border-2 border-surface-variant hover:border-vibrant-indigo transition-colors flex-shrink-0"
+                title={`${currentUser?.name} (${currentUser?.role === 'admin' ? 'Faculty Admin' : currentUser?.department})`}
+              >
+                <img
+                  src={currentUser?.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150'}
+                  alt={currentUser?.name}
+                  className="w-full h-full object-cover"
+                />
+              </button>
+
+              <button
+                onClick={logoutUser}
+                className="p-1.5 text-outline hover:text-error-red rounded-full transition-colors"
+                title="Logout Account"
+              >
+                <span className="material-symbols-outlined text-[20px]">logout</span>
+              </button>
+            </div>
+          )}
         </div>
       </Container>
     </Navbar>

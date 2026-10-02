@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
 import { Modal, Form, Button, Row, Col } from 'react-bootstrap';
 import { useApp } from '../../context/AppContext';
-import { CATEGORIES, DEPARTMENTS } from '../../services/mockData';
+import { CATEGORIES, DEPARTMENTS, CAMPUS_MEETUP_SPOTS } from '../../services/mockData';
 import { CaptchaWidget } from '../common/CaptchaWidget';
+import { createProductApi } from '../../services/api';
 
 export const AddListingModal = () => {
-  const { isAddListingOpen, setIsAddListingOpen, addNewListing } = useApp();
+  const { isAddListingOpen, setIsAddListingOpen, addNewListing, triggerToast } = useApp();
 
   const [formData, setFormData] = useState({
     title: '',
@@ -14,7 +15,7 @@ export const AddListingModal = () => {
     price: '',
     originalPrice: '',
     condition: 'Like New',
-    meetupLocation: 'Campus Library Lobby',
+    meetupLocation: CAMPUS_MEETUP_SPOTS[0],
     image: '',
     description: ''
   });
@@ -25,9 +26,10 @@ export const AddListingModal = () => {
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
+    if (errorMsg) setErrorMsg('');
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!isCaptchaVerified) {
       setErrorMsg('Please complete the CAPTCHA anti-spam verification before publishing.');
@@ -40,15 +42,15 @@ export const AddListingModal = () => {
     }
 
     const defaultImages = {
-      'Textbooks': 'https://lh3.googleusercontent.com/aida-public/AB6AXuDjg4urMZUMU-nM6gfR_o-mNvhkXPnzEHvgoPcvIYT-JpLLqLfJGp2Bqv1i5qH5Z6E0fHgr2WWMqRvFz45y3xPE-6g3ZqWW2WemLcLMMhLCYoaOzBO3CBV8d_PaRC3q1NCAyRdPlbQObNWv54sObTi4VMLXshnQ1DJiRGIc2XANzatJH_RcCQZhnQni5Q9Y6ZrhyjQMwrDTloVntAaQntfdvz_llRntFPeyJb1Z3YRCwY7gjFCOhZ_KcQ',
-      'Electronics': 'https://lh3.googleusercontent.com/aida-public/AB6AXuBvKhPaF0lZm7ulpOk4vWNHJAS3ECKD5dl08g9tWhjGB4XqrTBQHjfW-TBbznW9LH4Pcy-0YnH7F5U7AX8peqywWQgMj3jqqTRvUOtFVcKSVb1WFoki_0p0yNK2FZnMnHiU6MFK8aMjs-eTd1-2e94w6YOdac9ZRr-eauI4pbqm2Z-o0QoMBotEWJ9e7mVi3dHiUe7V0Kzl8z04iRtc4cXpTX4qOB_y1Jz2fE6-HcHPP5dRQ-5bWMxzEQ',
-      'Clothing': 'https://lh3.googleusercontent.com/aida-public/AB6AXuBNn2ZDulh0FRgocjuiPiJkIFTQVWdWBLatmIvd5w6keQSeEZtVuyw52lAUEPPSBbF4XJnT4UaARxtuMqZ5EcAJPfQmBtluzhEUIfqb-8TU-HtCvcIW__IoBNmsulfzF6wMvhM8E4jEXs6ajkng5CQ7Hz_LMPuls8KVNAA1P7wxiYTnTo2Im-N7yVaif1-kjYE96cMdCoB61RYR6Je7JAPt3O8SKqGjhUt1R8KkzIk12HmenRQ3Qkrp7A',
-      'Dorm Essentials': 'https://lh3.googleusercontent.com/aida-public/AB6AXuDAQJk9TzvUVB06wu6830YdFiJH2aAJOMyXbUH4X6ZGj1SdaAHzm0V9x3gI74KvM2FxI7X2tD44galtBuTzCvVGNq66xvwBdC1AuFXoVMhUybUS7LxVZ6cfqSyfrApauvBn15ZbM5hojSrM5dzAa3N6VRSUw96PiaXphZ1j431DjkEBo8LVPzLe7ZgK1J7AZuLKXknYYC33ZG4tTYx89mVPRnOtOkmhIyAQzKT0B0WfEghEKyvCTb_alQ'
+      'Textbooks': 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=600',
+      'Electronics': 'https://images.unsplash.com/photo-1611125832047-1d7ad1e8e48b?w=600',
+      'Clothing': 'https://images.unsplash.com/photo-1556905055-8f358a7a47b2?w=600',
+      'Dorm Essentials': 'https://images.unsplash.com/photo-1580481072645-022f9a6d1209?w=600'
     };
 
     const finalImage = formData.image.trim() || defaultImages[formData.category] || defaultImages['Textbooks'];
 
-    addNewListing({
+    const newProductPayload = {
       title: formData.title,
       category: formData.category,
       department: formData.department,
@@ -57,10 +59,20 @@ export const AddListingModal = () => {
       condition: formData.condition,
       description: formData.description,
       meetupLocation: formData.meetupLocation,
+      images: [finalImage],
       image: finalImage
-    });
+    };
+
+    try {
+      await createProductApi(newProductPayload);
+    } catch (err) {
+      console.log('[API Note] Product saved locally in state.');
+    }
+
+    addNewListing(newProductPayload);
 
     setIsAddListingOpen(false);
+    setIsCaptchaVerified(false);
     setFormData({
       title: '',
       category: 'Textbooks',
@@ -176,14 +188,16 @@ export const AddListingModal = () => {
 
             <Col md={12}>
               <Form.Group>
-                <Form.Label className="text-xs font-label-md text-on-surface">Safe Campus Meetup Location</Form.Label>
-                <Form.Control
-                  type="text"
+                <Form.Label className="text-xs font-label-md text-on-surface">Safe Campus Meetup Spot</Form.Label>
+                <Form.Select
                   name="meetupLocation"
-                  placeholder="e.g. Central Library Lobby / Student Union Lounge"
                   value={formData.meetupLocation}
                   onChange={handleChange}
-                />
+                >
+                  {CAMPUS_MEETUP_SPOTS.map(spot => (
+                    <option key={spot} value={spot}>{spot}</option>
+                  ))}
+                </Form.Select>
               </Form.Group>
             </Col>
 

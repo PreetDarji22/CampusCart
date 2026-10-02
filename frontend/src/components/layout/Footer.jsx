@@ -1,6 +1,7 @@
 import React from 'react';
 import { Container, Row, Col } from 'react-bootstrap';
 import { useApp } from '../../context/AppContext';
+import { CampusCartLogo } from '../common/CampusCartLogo';
 
 export const AppFooter = () => {
   const { setActiveTab } = useApp();
@@ -10,7 +11,10 @@ export const AppFooter = () => {
       <Container maxwidth="7xl" className="px-margin-mobile md:px-margin-desktop">
         <Row className="gy-4">
           <Col lg={4} md={6}>
-            <h2 className="font-display text-2xl font-bold text-white mb-3">CampusCart</h2>
+            <div className="flex items-center gap-2.5 mb-3">
+              <CampusCartLogo size={36} />
+              <h2 className="font-display text-2xl font-bold text-white mb-0">CampusCart</h2>
+            </div>
             <p className="font-body-md text-sm text-surface-variant/70 max-w-sm mb-4">
               The secure, peer-to-peer campus marketplace designed specifically for university students. Trade textbooks, lab gear, tech, and dorm decor safely.
             </p>
