@@ -1,12 +1,12 @@
 import React from 'react';
 
-export const CampusCartLogo = ({ size = 36, className = '', showText = false, textClassName = '' }) => {
+export const CampusCartLogo = ({ size = 36, className = '', showText = false, textClassName = '', isCircle = false }) => {
   return (
     <div className={`inline-flex items-center gap-2.5 ${className}`}>
       {/* SVG Icon */}
       <div 
         style={{ width: size, height: size }} 
-        className="relative flex-shrink-0 flex items-center justify-center rounded-2xl bg-gradient-to-br from-indigo-600 via-indigo-500 to-teal-400 p-1.5 shadow-md shadow-indigo-500/20 group-hover:scale-105 transition-transform duration-300"
+        className={`relative flex-shrink-0 flex items-center justify-center ${isCircle ? 'rounded-full' : 'rounded-2xl'} bg-gradient-to-br from-indigo-600 via-indigo-500 to-teal-400 p-1.5 shadow-md shadow-indigo-500/20 group-hover:scale-105 transition-transform duration-300`}
       >
         <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full h-full">
           {/* Graduation Cap Top */}
