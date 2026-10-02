@@ -97,11 +97,70 @@
 }
 
 .hero-gradient {
-  background: linear-gradient(135deg, rgba(99, 102, 241, 0.12) 0%, rgba(245, 158, 11, 0.06) 100%);
+  position: relative;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 75% 25%, rgba(147, 197, 253, 0.55), transparent 35%),
+    linear-gradient(135deg, #3b82f6 0%, #60a5fa 50%, #bfdbfe 100%);
 }
 
 .dark .hero-gradient {
-  background: linear-gradient(135deg, rgba(99, 102, 241, 0.25) 0%, rgba(15, 23, 42, 0.9) 100%);
+  background:
+    radial-gradient(circle at 75% 25%, rgba(96, 165, 250, 0.20), transparent 35%),
+    linear-gradient(135deg, #172554 0%, #1e3a8a 55%, #0f172a 100%);
+}
+
+.hero-wave {
+  position: absolute;
+  left: 0;
+  bottom: -1px;
+  width: 100%;
+  overflow: hidden;
+  line-height: 0;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.hero-wave svg {
+  display: block;
+  width: 100%;
+  height: 70px;
+}
+
+@media (min-width: 768px) {
+  .hero-wave svg {
+    height: 95px;
+  }
+}
+
+@media (min-width: 1280px) {
+  .hero-wave svg {
+    height: 125px;
+  }
+}
+
+.hero-wave-back path {
+  fill: rgba(219, 234, 254, 0.45);
+}
+
+.hero-wave-middle path {
+  fill: rgba(255, 255, 255, 0.65);
+}
+
+.hero-wave-front path {
+  fill: #ffffff;
+}
+
+.dark .hero-wave-back path {
+  fill: rgba(96, 165, 250, 0.12);
+}
+
+.dark .hero-wave-middle path {
+  fill: rgba(59, 130, 246, 0.22);
+}
+
+.dark .hero-wave-front path {
+  fill: #1e293b;
 }
 
 .blob-shape {

@@ -231,36 +231,20 @@ export const DiscoverPage = () => {
         </div>
 
         <Container maxwidth="7xl" className="relative z-10 mx-auto">
-          {/* Top Live Event Callout Pill */}
-          <div className="mb-4">
-            <button
-              onClick={() => setActiveTab('events')}
-              className="inline-flex items-center gap-2 px-4 py-1.5 bg-surface-card/90 dark:bg-slate-800/90 backdrop-blur-md rounded-full shadow-sm border border-vibrant-indigo/30 hover:border-vibrant-indigo transition-all group"
-            >
-              <span className="w-2 h-2 rounded-full bg-fresh-mint animate-pulse"></span>
-              <span className="text-xs font-bold text-vibrant-indigo uppercase tracking-wider">
-                🎪 Happening On Campus:
-              </span>
-              <span className="text-xs text-on-background font-semibold group-hover:underline">
-                {upcomingEventHighlight.title} ({upcomingEventHighlight.date})
-              </span>
-              <span className="text-xs text-outline group-hover:translate-x-0.5 transition-transform">→</span>
-            </button>
-          </div>
-
           <Row className="align-items-center gy-5">
             <Col lg={6} className="space-y-6">
-              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 bg-surface-card rounded-full shadow-sm border border-border-subtle">
-                <span className="w-2.5 h-2.5 rounded-full bg-fresh-mint"></span>
-                <span className="font-label-md text-xs font-semibold text-on-surface-variant">Closed Peer-to-Peer College Marketplace</span>
+              <div>
+                <span className="block font-bold text-[14px] sm:text-[15px] md:text-[16px] tracking-[0.12em] sm:tracking-[0.16em] uppercase leading-[1.2] text-[#0F2A5F] dark:text-blue-300 mb-4 sm:mb-[18px]">
+                  CAMPUS MARKETPLACE
+                </span>
+
+                <h1 className="font-display text-4xl sm:text-5xl lg:text-6xl font-bold text-on-background leading-tight">
+                  Buy, Sell & Exchange <br />
+                  <span className="text-[#0F2A5F] dark:text-blue-300">On Your Campus</span>
+                </h1>
               </div>
 
-              <h1 className="font-display text-4xl sm:text-5xl lg:text-6xl font-bold text-on-background leading-tight">
-                Buy, Sell & Exchange <br />
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-vibrant-indigo via-indigo-500 to-primary">On Your Campus</span>
-              </h1>
-
-              <p className="font-body-lg text-base text-outline max-w-lg leading-relaxed">
+              <p className="font-body-lg text-base text-[#334E7A] dark:text-slate-300 max-w-lg leading-relaxed">
                 CampusCart is a verified student exchange platform for engineering textbooks, lab gear, calculators, hostel essentials, and tech. Zero shipping fees, zero strangers off-campus.
               </p>
 
@@ -311,22 +295,6 @@ export const DiscoverPage = () => {
                     </button>
                   </>
                 )}
-              </div>
-
-              {/* Verified Trust Stats Badge */}
-              <div className="grid grid-cols-3 gap-4 pt-4 border-t border-border-subtle/80 max-w-md">
-                <div>
-                  <h4 className="font-headline-md text-xl font-bold text-on-background">100%</h4>
-                  <p className="font-body-sm text-xs text-outline mb-0">Verified Students</p>
-                </div>
-                <div>
-                  <h4 className="font-headline-md text-xl font-bold text-vibrant-indigo">₹0</h4>
-                  <p className="font-body-sm text-xs text-outline mb-0">Zero Commission</p>
-                </div>
-                <div>
-                  <h4 className="font-headline-md text-xl font-bold text-fresh-mint">Same-Day</h4>
-                  <p className="font-body-sm text-xs text-outline mb-0">Campus Pickups</p>
-                </div>
               </div>
             </Col>
 
@@ -403,6 +371,23 @@ export const DiscoverPage = () => {
             </Col>
           </Row>
         </Container>
+
+        {/* Decorative Bottom Waves */}
+        <div className="hero-wave hero-wave-back" aria-hidden="true">
+          <svg viewBox="0 0 1440 120" fill="none" preserveAspectRatio="none">
+            <path d="M0,45 C160,45 320,80 480,80 C640,80 800,25 960,25 C1120,25 1280,65 1440,65 L1440,120 L0,120 Z" />
+          </svg>
+        </div>
+        <div className="hero-wave hero-wave-middle" aria-hidden="true">
+          <svg viewBox="0 0 1440 120" fill="none" preserveAspectRatio="none">
+            <path d="M0,30 C120,30 260,20 400,20 C550,20 700,75 850,75 C1000,75 1150,35 1250,35 C1350,35 1400,45 1440,45 L1440,120 L0,120 Z" />
+          </svg>
+        </div>
+        <div className="hero-wave hero-wave-front" aria-hidden="true">
+          <svg viewBox="0 0 1440 120" fill="none" preserveAspectRatio="none">
+            <path d="M0,70 C140,70 280,95 420,95 C600,95 850,45 1050,45 C1200,45 1340,60 1440,60 L1440,120 L0,120 Z" />
+          </svg>
+        </div>
       </section>
 
       {/* =========================================================================
