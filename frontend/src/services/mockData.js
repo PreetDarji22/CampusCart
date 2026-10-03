@@ -324,4 +324,32 @@ export const DEPARTMENTS = [
   'Environmental Engineering (Env)'
 ];
 
+export const CATEGORY_DEFAULT_IMAGES = {
+  'Textbooks': 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=600',
+  'Electronics': 'https://images.unsplash.com/photo-1611125832047-1d7ad1e8e48b?w=600',
+  'Dorm Essentials': 'https://images.unsplash.com/photo-1580481072645-022f9a6d1209?w=600',
+  'Hostel & Room Living': 'https://images.unsplash.com/photo-1580481072645-022f9a6d1209?w=600',
+  'Clothing': 'https://images.unsplash.com/photo-1556905055-8f358a7a47b2?w=600',
+  'Music & Hobbies': 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=600',
+  'Tickets & Events': 'https://images.unsplash.com/photo-1501281668745-f7f57925c3b4?w=600',
+  'Lab Equipment': 'https://images.unsplash.com/photo-1532094349884-543bc11b234d?w=600',
+  'Sports & Fitness': 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=600',
+  'Cycles & Mobility': 'https://images.unsplash.com/photo-1485965120184-e220f721d03e?w=600',
+  'Stationery & Supplies': 'https://images.unsplash.com/photo-1583485088034-697b5bc54ccd?w=600',
+  'Misc': 'https://images.unsplash.com/photo-1526170375885-4d8ecf77b99f?w=600'
+};
+
+export const QUICK_IMAGE_PRESETS = [
+  { label: 'Calculus / CS Book', category: 'Textbooks', url: 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=600' },
+  { label: 'Engineering Handbook', category: 'Textbooks', url: 'https://images.unsplash.com/photo-1532012164546-f432f2e3777f?w=600' },
+  { label: 'Graphing Calculator', category: 'Electronics', url: 'https://images.unsplash.com/photo-1611125832047-1d7ad1e8e48b?w=600' },
+  { label: 'Mechanical Keyboard', category: 'Electronics', url: 'https://images.unsplash.com/photo-1587829741301-dc798b83add3?w=600' },
+  { label: 'Wireless Headphones', category: 'Electronics', url: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=600' },
+  { label: 'Desk Lamp / Study', category: 'Dorm Essentials', url: 'https://images.unsplash.com/photo-1580481072645-022f9a6d1209?w=600' },
+  { label: 'College Hoodie / Wear', category: 'Clothing', url: 'https://images.unsplash.com/photo-1556905055-8f358a7a47b2?w=600' },
+  { label: 'Campus Skateboard', category: 'Cycles & Mobility', url: 'https://images.unsplash.com/photo-1547447134-cd3f5c716030?w=600' },
+  { label: 'Sports Racket / Ball', category: 'Music & Hobbies', url: 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=600' },
+  { label: 'Guitar / Instrument', category: 'Music & Hobbies', url: 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=600' }
+];
+
 

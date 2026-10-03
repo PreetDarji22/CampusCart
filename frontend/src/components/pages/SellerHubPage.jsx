@@ -150,100 +150,102 @@ export const SellerHubPage = () => {
 
         {/* Incoming Purchase Requests Section */}
         {incomingOrders.length > 0 && (
-          <div className="bg-surface-card p-5 rounded-2xl border border-border-subtle shadow-level-1 mb-6 space-y-4">
-            <div className="flex items-center justify-between border-b border-border-subtle pb-3">
-              <h3 className="font-bold text-base text-on-background flex items-center gap-2 mb-0">
-                <span className="material-symbols-outlined text-vibrant-indigo">notifications_active</span>
+          <div className="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm mb-6 space-y-4">
+            <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
+              <h3 className="font-bold text-base text-slate-900 dark:text-white flex items-center gap-2 mb-0">
+                <span className="material-symbols-outlined text-indigo-600 dark:text-indigo-400">notifications_active</span>
                 Incoming Sales Orders ({incomingOrders.filter(o => o.status === 'pending').length} Pending)
               </h3>
-              <Badge className="bg-vibrant-indigo/15 text-vibrant-indigo text-xs font-semibold">
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-indigo-50 dark:bg-indigo-950/80 text-indigo-700 dark:text-indigo-300 border border-indigo-200/80 dark:border-indigo-800/80 shadow-sm">
+                <span className="w-2 h-2 rounded-full bg-indigo-600 dark:bg-indigo-400 animate-pulse"></span>
                 MongoDB Live Orders
-              </Badge>
+              </span>
             </div>
 
             <div className="space-y-3">
               {incomingOrders.map((req) => (
                 <div
                   key={req.id}
-                  className="bg-surface-container-low dark:bg-slate-800 p-4 rounded-xl border border-border-subtle/70 flex flex-col md:flex-row items-start md:items-center justify-between gap-4"
+                  className="bg-slate-50/80 dark:bg-slate-800/60 p-4 rounded-xl border border-slate-200/80 dark:border-slate-700/60 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 transition-all"
                 >
                   <div className="flex items-center gap-3">
-                    <img src={req.buyerAvatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150'} alt={req.buyerName} className="w-10 h-10 rounded-full object-cover border" />
+                    <img src={req.buyerAvatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150'} alt={req.buyerName} className="w-11 h-11 rounded-full object-cover border border-slate-200 dark:border-slate-700 shadow-sm" />
                     <div>
-                      <div className="flex items-center gap-2">
-                        <span className="font-bold text-sm text-on-background">{req.buyerName}</span>
-                        <Badge
-                          bg={
-                            req.status === 'completed'
-                              ? 'success'
-                              : req.status === 'accepted'
-                              ? 'primary'
-                              : req.status === 'rejected'
-                              ? 'danger'
-                              : 'warning'
-                          }
-                          className="text-[10px]"
-                        >
-                          {req.status === 'completed'
-                            ? 'SOLD & COMPLETED 🎉'
-                            : req.status === 'accepted'
-                            ? 'ACCEPTED - MEETUP PENDING'
-                            : req.status.toUpperCase()}
-                        </Badge>
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <span className="font-bold text-sm text-slate-900 dark:text-white">{req.buyerName}</span>
+                        {req.status === 'completed' && (
+                          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-100 dark:bg-emerald-950/90 text-emerald-800 dark:text-emerald-200 border border-emerald-300 dark:border-emerald-800">
+                            SOLD & COMPLETED 🎉
+                          </span>
+                        )}
+                        {req.status === 'accepted' && (
+                          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-blue-100 dark:bg-blue-950/90 text-blue-800 dark:text-blue-200 border border-blue-300 dark:border-blue-800">
+                            ACCEPTED - MEETUP PENDING
+                          </span>
+                        )}
+                        {req.status === 'pending' && (
+                          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-amber-100 dark:bg-amber-950/90 text-amber-800 dark:text-amber-200 border border-amber-300 dark:border-amber-800">
+                            PENDING REVIEW ⏳
+                          </span>
+                        )}
+                        {req.status === 'rejected' && (
+                          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-rose-100 dark:bg-rose-950/90 text-rose-800 dark:text-rose-200 border border-rose-300 dark:border-rose-800">
+                            DECLINED ✕
+                          </span>
+                        )}
                       </div>
-                      <p className="text-xs text-outline mb-0">
-                        Wants to buy: <strong className="text-on-background">{req.productTitle}</strong> (₹{req.price})
+                      <p className="text-xs text-slate-600 dark:text-slate-300 mb-0 mt-0.5">
+                        Wants to buy: <strong className="text-slate-900 dark:text-white font-semibold">{req.productTitle}</strong> (₹{req.price})
                       </p>
-                      <p className="text-[11px] text-on-surface-variant italic mt-0.5 mb-0">"{req.notes}"</p>
+                      <p className="text-[11px] text-slate-500 dark:text-slate-400 italic mt-0.5 mb-0">"{req.notes}"</p>
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-2 self-end md:self-auto">
+                  <div className="flex items-center gap-2 self-end md:self-auto flex-wrap">
                     {req.status === 'pending' ? (
                       <>
-                        <Button
-                          size="sm"
+                        <button
+                          type="button"
                           onClick={() => acceptPurchaseRequest(req.id)}
-                          className="bg-fresh-mint hover:bg-emerald-600 text-white font-bold text-xs rounded-xl border-0 px-3 py-1.5 flex items-center gap-1 shadow-sm"
+                          className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl px-3 py-1.5 flex items-center gap-1 shadow-sm transition-colors cursor-pointer"
                         >
                           <span className="material-symbols-outlined text-[16px]">check_circle</span>
                           Accept & Chat
-                        </Button>
-                        <Button
-                          size="sm"
-                          variant="outline-danger"
+                        </button>
+                        <button
+                          type="button"
                           onClick={() => rejectPurchaseRequest(req.id)}
-                          className="text-xs rounded-xl px-3 py-1.5"
+                          className="bg-rose-50 dark:bg-rose-950/60 hover:bg-rose-100 dark:hover:bg-rose-900/60 text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-800 text-xs font-semibold rounded-xl px-3 py-1.5 transition-colors cursor-pointer"
                         >
                           Decline
-                        </Button>
+                        </button>
                       </>
                     ) : req.status === 'accepted' ? (
                       <>
-                        <Button
-                          size="sm"
+                        <button
+                          type="button"
                           onClick={() => markAsSold(req.productId)}
-                          className="bg-fresh-mint hover:bg-emerald-600 text-white font-bold text-xs rounded-xl border-0 px-3 py-1.5 flex items-center gap-1 shadow-sm"
+                          className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl px-3 py-1.5 flex items-center gap-1 shadow-sm transition-colors cursor-pointer"
                         >
                           <span className="material-symbols-outlined text-[16px]">verified</span>
                           Mark Sold (Handoff Done)
-                        </Button>
-                        <Button
-                          size="sm"
+                        </button>
+                        <button
+                          type="button"
                           onClick={() => openChatWith({ name: req.buyerName, avatar: req.buyerAvatar }, { title: req.productTitle })}
-                          className="bg-vibrant-indigo text-white font-bold text-xs rounded-xl border-0 px-3 py-1.5 flex items-center gap-1"
+                          className="bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs rounded-xl px-3 py-1.5 flex items-center gap-1 shadow-sm transition-colors cursor-pointer"
                         >
                           <span className="material-symbols-outlined text-[16px]">chat</span>
                           Chat with Buyer
-                        </Button>
+                        </button>
                       </>
                     ) : req.status === 'completed' ? (
-                      <span className="text-xs text-fresh-mint font-bold flex items-center gap-1">
+                      <span className="text-xs text-emerald-700 dark:text-emerald-300 font-bold flex items-center gap-1 bg-emerald-50 dark:bg-emerald-950/60 px-3 py-1.5 rounded-xl border border-emerald-200 dark:border-emerald-800">
                         <span className="material-symbols-outlined text-[16px]">task_alt</span>
                         Transaction Completed
                       </span>
                     ) : (
-                      <span className="text-xs text-outline italic">Request Declined</span>
+                      <span className="text-xs text-slate-500 italic bg-slate-100 dark:bg-slate-800 px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700">Request Declined</span>
                     )}
                   </div>
                 </div>
@@ -254,68 +256,69 @@ export const SellerHubPage = () => {
 
         {/* My Purchases & Bought Items */}
         {sentOrders.length > 0 && (
-          <div className="bg-surface-card p-5 rounded-2xl border border-border-subtle shadow-level-1 mb-6 space-y-4">
-            <div className="flex items-center justify-between border-b border-border-subtle pb-3">
-              <h3 className="font-bold text-base text-on-background flex items-center gap-2 mb-0">
-                <span className="material-symbols-outlined text-vibrant-indigo">shopping_bag</span>
+          <div className="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm mb-6 space-y-4">
+            <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
+              <h3 className="font-bold text-base text-slate-900 dark:text-white flex items-center gap-2 mb-0">
+                <span className="material-symbols-outlined text-indigo-600 dark:text-indigo-400">shopping_bag</span>
                 My Purchases & Bought Items ({sentOrders.length})
               </h3>
-              <Badge className="bg-fresh-mint/15 text-fresh-mint text-xs font-semibold">
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-50 dark:bg-emerald-950/80 text-emerald-700 dark:text-emerald-300 border border-emerald-200/80 dark:border-emerald-800/80 shadow-sm">
+                <span className="w-2 h-2 rounded-full bg-emerald-600 dark:bg-emerald-400"></span>
                 Buyer Ledger
-              </Badge>
+              </span>
             </div>
 
             <div className="space-y-3">
               {sentOrders.map((req) => (
                 <div
                   key={req.id}
-                  className="bg-surface-container-low dark:bg-slate-800 p-4 rounded-xl border border-border-subtle/70 flex flex-col md:flex-row items-start md:items-center justify-between gap-4"
+                  className="bg-slate-50/80 dark:bg-slate-800/60 p-4 rounded-xl border border-slate-200/80 dark:border-slate-700/60 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 transition-all"
                 >
                   <div className="flex items-center gap-3">
-                    <img src={req.productImage || 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=600'} alt={req.productTitle} className="w-12 h-12 rounded-lg object-cover border" />
+                    <img src={req.productImage || 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=600'} alt={req.productTitle} className="w-12 h-12 rounded-lg object-cover border border-slate-200 dark:border-slate-700 shadow-sm" />
                     <div>
-                      <div className="flex items-center gap-2">
-                        <span className="font-bold text-sm text-on-background">{req.productTitle}</span>
-                        <Badge
-                          bg={
-                            req.status === 'completed'
-                              ? 'success'
-                              : req.status === 'accepted'
-                              ? 'primary'
-                              : req.status === 'rejected'
-                              ? 'danger'
-                              : 'warning'
-                          }
-                          className="text-[10px]"
-                        >
-                          {req.status === 'completed'
-                            ? 'PURCHASED & RECEIVED 🎉'
-                            : req.status === 'accepted'
-                            ? 'ACCEPTED - READY FOR MEETUP ✅'
-                            : req.status === 'pending'
-                            ? 'PENDING SELLER RESPONSE ⏳'
-                            : 'DECLINED'}
-                        </Badge>
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <span className="font-bold text-sm text-slate-900 dark:text-white">{req.productTitle}</span>
+                        {req.status === 'completed' && (
+                          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-100 dark:bg-emerald-950/90 text-emerald-800 dark:text-emerald-200 border border-emerald-300 dark:border-emerald-800">
+                            PURCHASED & RECEIVED 🎉
+                          </span>
+                        )}
+                        {req.status === 'accepted' && (
+                          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-blue-100 dark:bg-blue-950/90 text-blue-800 dark:text-blue-200 border border-blue-300 dark:border-blue-800">
+                            ACCEPTED - READY FOR MEETUP ✅
+                          </span>
+                        )}
+                        {req.status === 'pending' && (
+                          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-amber-100 dark:bg-amber-950/90 text-amber-800 dark:text-amber-200 border border-amber-300 dark:border-amber-800">
+                            PENDING SELLER RESPONSE ⏳
+                          </span>
+                        )}
+                        {req.status === 'rejected' && (
+                          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-rose-100 dark:bg-rose-950/90 text-rose-800 dark:text-rose-200 border border-rose-300 dark:border-rose-800">
+                            DECLINED ✕
+                          </span>
+                        )}
                       </div>
-                      <p className="text-xs text-outline mb-0">
-                        Price: <strong className="text-vibrant-indigo">₹{req.price}</strong> • Seller: {req.sellerName || req.sellerEmail || 'Campus Peer'}
+                      <p className="text-xs text-slate-600 dark:text-slate-300 mb-0 mt-0.5">
+                        Price: <strong className="text-indigo-600 dark:text-indigo-400 font-bold">₹{req.price}</strong> • Seller: {req.sellerName || req.sellerEmail || 'Campus Peer'}
                       </p>
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-2 self-end md:self-auto">
+                  <div className="flex items-center gap-2 self-end md:self-auto flex-wrap">
                     {req.status === 'accepted' && (
-                      <Button
-                        size="sm"
+                      <button
+                        type="button"
                         onClick={() => openChatWith({ name: req.sellerName || 'Seller Peer', avatar: req.sellerAvatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150' }, { title: req.productTitle })}
-                        className="bg-vibrant-indigo text-white font-bold text-xs rounded-xl border-0 px-3 py-1.5 flex items-center gap-1"
+                        className="bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs rounded-xl px-3 py-1.5 flex items-center gap-1 shadow-sm transition-colors cursor-pointer"
                       >
                         <span className="material-symbols-outlined text-[16px]">chat</span>
                         Chat with Seller
-                      </Button>
+                      </button>
                     )}
                     {req.status === 'completed' && (
-                      <span className="text-xs text-fresh-mint font-bold flex items-center gap-1">
+                      <span className="text-xs text-emerald-700 dark:text-emerald-300 font-bold flex items-center gap-1 bg-emerald-50 dark:bg-emerald-950/60 px-3 py-1.5 rounded-xl border border-emerald-200 dark:border-emerald-800">
                         <span className="material-symbols-outlined text-[16px]">verified</span>
                         Ownership Verified
                       </span>
@@ -446,51 +449,48 @@ export const SellerHubPage = () => {
                         </div>
                       </td>
                       <td>
-                        <Badge bg="light" className="text-on-surface-variant text-xs border border-border-subtle">
+                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700">
                           {item.category}
-                        </Badge>
+                        </span>
                       </td>
-                      <td className="font-bold text-on-background">₹{item.price.toLocaleString('en-IN')}</td>
+                      <td className="font-bold text-slate-900 dark:text-white">₹{item.price.toLocaleString('en-IN')}</td>
                       <td>
                         {item.sold ? (
-                          <Badge bg="secondary" className="bg-surface-container-high text-on-surface-variant text-xs">
+                          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-300/60 dark:border-slate-700">
                             SOLD
-                          </Badge>
+                          </span>
                         ) : (
-                          <Badge bg="success" className="bg-fresh-mint/15 text-fresh-mint text-xs">
+                          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-100 dark:bg-emerald-950/70 text-emerald-800 dark:text-emerald-300 border border-emerald-300/60 dark:border-emerald-800">
                             Active
-                          </Badge>
+                          </span>
                         )}
                       </td>
-                      <td className="text-outline text-xs">{item.views || 24} views</td>
+                      <td className="text-slate-500 text-xs">{item.views || 24} views</td>
                       <td className="text-end">
                         <div className="flex items-center justify-end gap-2">
                           {!item.sold && (
-                            <Button
-                              variant="outline-success"
-                              size="sm"
+                            <button
+                              type="button"
                               onClick={() => markAsSold(item.id)}
-                              className="text-xs py-1 px-2 font-semibold"
+                              className="px-2.5 py-1 rounded-lg text-xs font-bold text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/60 hover:bg-emerald-100 dark:hover:bg-emerald-900/60 border border-emerald-300 dark:border-emerald-800 transition-colors cursor-pointer"
                             >
                               Mark Sold
-                            </Button>
+                            </button>
                           )}
-                          <Button
-                            variant="outline-secondary"
-                            size="sm"
+                          <button
+                            type="button"
                             onClick={() => setSelectedProduct(item)}
-                            className="text-xs py-1 px-2"
+                            className="px-2.5 py-1 rounded-lg text-xs font-semibold text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 transition-colors cursor-pointer"
                           >
                             View
-                          </Button>
-                          <Button
-                            variant="outline-danger"
-                            size="sm"
+                          </button>
+                          <button
+                            type="button"
                             onClick={() => setItemToDelete(item)}
-                            className="text-xs py-1 px-2"
+                            className="px-2.5 py-1 rounded-lg text-xs font-semibold text-rose-700 dark:text-rose-300 bg-rose-50 dark:bg-rose-950/60 hover:bg-rose-100 dark:hover:bg-rose-900/60 border border-rose-200 dark:border-rose-800 transition-colors cursor-pointer"
                           >
                             Delete
-                          </Button>
+                          </button>
                         </div>
                       </td>
                     </tr>
@@ -503,41 +503,42 @@ export const SellerHubPage = () => {
 
         {/* My Student Wanted Requirements Management */}
         {myRequests.length > 0 && (
-          <div className="bg-surface-card p-6 rounded-2xl border border-border-subtle shadow-level-1">
-            <div className="flex items-center justify-between mb-4 border-b border-border-subtle pb-3">
-              <h3 className="font-headline-md text-lg font-bold text-on-background mb-0">My Active Student Requirements</h3>
-              <span className="text-xs text-outline font-medium">Remove requirements once fulfilled</span>
+          <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
+            <div className="flex items-center justify-between mb-4 border-b border-slate-100 dark:border-slate-800 pb-3">
+              <h3 className="font-headline-md text-lg font-bold text-slate-900 dark:text-white mb-0">My Active Student Requirements</h3>
+              <span className="text-xs text-slate-500 font-medium">Remove requirements once fulfilled</span>
             </div>
 
             <div className="space-y-3">
               {myRequests.map(req => (
                 <div
                   key={req.id}
-                  className="bg-surface-container-low dark:bg-slate-800 p-3.5 rounded-xl border border-border-subtle flex items-center justify-between gap-4"
+                  className="bg-slate-50/80 dark:bg-slate-800/60 p-3.5 rounded-xl border border-slate-200 dark:border-slate-700 flex items-center justify-between gap-4"
                 >
                   <div>
-                    <div className="flex items-center gap-2">
-                      <span className="font-bold text-sm text-on-background">{req.title}</span>
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <span className="font-bold text-sm text-slate-900 dark:text-white">{req.title}</span>
                       {req.urgent && (
-                        <Badge className="bg-error-container text-error text-[10px]">Urgent</Badge>
+                        <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-rose-100 dark:bg-rose-950 text-rose-800 dark:text-rose-300 border border-rose-300 dark:border-rose-800">
+                          Urgent
+                        </span>
                       )}
-                      <Badge className="bg-surface-card text-on-surface-variant text-[10px] border border-border-subtle">
+                      <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700">
                         {req.category}
-                      </Badge>
+                      </span>
                     </div>
-                    <p className="text-xs text-outline mb-0 mt-0.5">
-                      Budget: {req.budget} • Preferred Spot: {req.preferredMeetup}
+                    <p className="text-xs text-slate-600 dark:text-slate-400 mb-0 mt-0.5">
+                      Budget: <strong>{req.budget}</strong> • Preferred Spot: {req.preferredMeetup}
                     </p>
                   </div>
 
-                  <Button
-                    size="sm"
-                    variant="outline-danger"
+                  <button
+                    type="button"
                     onClick={() => deleteRequest(req.id)}
-                    className="text-xs py-1 px-3 rounded-lg"
+                    className="text-xs py-1.5 px-3 rounded-xl bg-rose-50 dark:bg-rose-950/60 hover:bg-rose-100 dark:hover:bg-rose-900/60 text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-800 font-semibold transition-colors cursor-pointer"
                   >
                     Remove Requirement
-                  </Button>
+                  </button>
                 </div>
               ))}
             </div>
