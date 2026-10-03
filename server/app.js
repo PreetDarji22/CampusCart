@@ -27,11 +27,13 @@ const __dirname = path.dirname(__filename);
 
 const app = express();
 
-// Enable CORS
+// Enable CORS with dynamic origin reflection for Vercel and local development
 app.use(
   cors({
-    origin: process.env.CLIENT_URL || 'http://localhost:3000',
-    credentials: true
+    origin: true,
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept']
   })
 );
 
