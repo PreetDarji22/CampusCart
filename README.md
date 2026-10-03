@@ -1,11 +1,11 @@
 # CampusCart 🎓🛒
 > **A Smart, Verified Peer-to-Peer Engineering College Marketplace & Campus Hub**  
-> Built as a full-stack **MERN** application compliant with **Web Application Development (WAD)** specifications using **React.js (Vite)**, **Node.js / Express.js**, **MongoDB / Mongoose**, **Tailwind CSS**, and **Bootstrap 5**.
+> Built as a full-stack **MERN** application compliant with **Web Application Development (WAD - BE05000281)** and **Advanced Database Management System (ADBMS - BE05016031)** specifications using **React.js (Vite)**, **Node.js / Express.js**, **MongoDB Atlas / Mongoose**, **Tailwind CSS**, and **Bootstrap 5**.
 
 [![React](https://img.shields.io/badge/Frontend-React%2018%20%2B%20Vite-61DAFB?logo=react&logoColor=black)](https://reactjs.org/)
 [![Node.js](https://img.shields.io/badge/Backend-Node.js%20%2B%20Express-339933?logo=node.js&logoColor=white)](https://nodejs.org/)
-[![MongoDB](https://img.shields.io/badge/Database-MongoDB%20%2B%20Mongoose-47A248?logo=mongodb&logoColor=white)](https://www.mongodb.com/)
-[![Tailwind CSS](https://img.shields.io/badge/Styling-Tailwind%20CSS%20%2B%20Bootstrap-06B6D4?logo=tailwind-css&logoColor=white)](https://tailwindcss.com/)
+[![MongoDB](https://img.shields.io/badge/Database-MongoDB%20Atlas%20%2B%20Mongoose-47A248?logo=mongodb&logoColor=white)](https://www.mongodb.com/)
+[![Tailwind CSS](https://img.shields.io/badge/Styling-Tailwind%20CSS%20%2B%20Bootstrap%205-06B6D4?logo=tailwind-css&logoColor=white)](https://tailwindcss.com/)
 [![License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
 ---
@@ -20,7 +20,10 @@
 - [🔐 Test User & Admin Accounts](#-test-user--admin-accounts)
 - [📡 API Endpoints Reference](#-api-endpoints-reference)
 - [🗄️ MongoDB Database Schemas](#️-mongodb-database-schemas)
-- [🎓 Academic Syllabus & GTU Compliance](#-academic-syllabus--gtu-compliance)
+- [🌐 Production Cloud Deployment Guide](#-production-cloud-deployment-guide)
+- [🎓 Academic Syllabus & Curriculum Mapping (WAD & ADBMS)](#-academic-syllabus--curriculum-mapping-wad--adbms)
+  - [1. Web Application Development (WAD - BE05000281)](#1-web-application-development-wad--subject-code-be05000281)
+  - [2. Advanced Database Management System (ADBMS - BE05016031)](#2-advanced-database-management-system-adbms--subject-code-be05016031)
 - [📄 License & Authors](#-license--authors)
 
 ---
@@ -29,57 +32,64 @@
 
 ### 1. 🎓 Role-Based Authentication & Privacy-First Security
 - **Dual Role Access Control**: Clear switchable roles for **🎓 Student** and **🛡️ Campus Administrator / Faculty**.
-- **Institutional Verification**: Account tagging with college email, engineering department, year of study, and student roll number.
-- **Forgot Password Recovery**: 6-digit cryptographic verification code generation and password reset saved securely to MongoDB.
+- **Institutional Verification**: Account tagging with verified college email, engineering branch/department, academic year, and student roll number.
+- **Forgot Password Recovery**: 6-digit cryptographic verification code generation and password reset saved securely to MongoDB with bcrypt hashing.
 - **Clean Form UX**: Blank password fields by default with zero automatic pre-fills.
 
-### 2. 🛒 Isolated Shopping Cart & Wishlist per User
-- **Account Isolation**: Shopping carts and wishlist favorites are dynamically isolated per authenticated user session (`campuscart_cart_<email>`), ensuring zero data leakage across different user logins or guest sessions.
+### 2. 📸 Interactive Campus Image Picker & Smart Fallbacks
+- **Multi-Mode Image Picker**:
+  - **Upload Tab**: Drag-and-drop or browse image files from device (PNG, JPG, WEBP < 5MB) with instant preview.
+  - **Campus Presets Tab**: Quick selection of curated campus items (Calculus books, TI graphing calculators, mechanical keyboards, headphones, desk lamps, bicycles, lab coats).
+  - **Paste URL Tab**: Optional external image URL input.
+- **Smart Category Fallback**: When an image is skipped, CampusCart automatically assigns an appropriate high-quality photo based on the selected category.
+- **Debounced Submissions**: Submissions are debounced and disabled while publishing to prevent duplicate listings.
 
-### 3. 🔔 Live Notifications & Alerts Bell
-- **Real-Time Header Badge**: Unread notification counter in the top navigation bar.
-- **Interactive Notification Dropdown**:
-  - **`🛒 Purchase Request Received`**: Alerts sellers immediately when a buyer places an offer.
-  - **`🎉 Order Accepted & Meetup Scheduled`**: Alerts buyers when the seller accepts their meetup proposal.
-  - **`✅ Item Sold & Completed`**: Confirms transaction completion and ledger updates.
-  - **`🎪 Event Registration Confirmation`**: Instant ticket confirmation alert.
+### 3. 🛒 Isolated Shopping Cart, Wishlist & Notifications per Account
+- **Account Isolation**: Shopping carts, wishlist favorites, private listings, and notifications are dynamically isolated per authenticated user session (`campuscart_cart_<email>`, `campuscart_notifications_<email>`), ensuring zero data leakage across account switches.
 
-### 4. 🗄️ Real-Time Sales Ledger & Purchase Orders Workflow
+### 4. 🔔 Live User-Scoped Notifications
+- **Real-Time Notification Feed**:
+  - **`🛒 New Purchase Request`**: Alerts sellers immediately when a buyer places an offer on their listing.
+  - **`🎉 Order Accepted!`**: Alerts buyers when the seller accepts their proposal and readies meetup.
+  - **`❌ Order Declined`**: Alerts buyer if an offer is declined.
+  - **`✅ Item Marked Sold`**: Confirms transaction completion and ledger ownership update.
+  - **`🎪 Event Pass Confirmed`**: Instant digital ticket confirmation.
+  - **`💬 New Message`**: Direct peer chat notification.
+  - **`🛡️ Safety Report Updated`**: Moderation update notification.
+
+### 5. 🗄️ Real-Time Sales Ledger & Purchase Orders Workflow
 - **Multi-Account MongoDB Synchronization**:
-  1. Student A posts a listing ➔ Stored in `products` collection with unique MongoDB `_id`.
-  2. Student B logs in ➔ Discovers Student A's listing in the live campus marketplace.
-  3. Student B sends purchase request ➔ Stored in `orders` collection (`status: "pending"`).
-  4. Student A accepts & marks item **SOLD** ➔ Product status updates to `"sold"` and order to `"completed"`.
-  5. Student B's **Dashboard ➔ My Purchases** displays the bought item with verified ownership.
+  1. Student A posts a listing ➔ Saved to `products` collection in MongoDB.
+  2. Student B discovers listing ➔ Sends purchase request ➔ Stored in `orders` collection (`status: "pending"`).
+  3. Student A accepts & marks item **SOLD** ➔ Product status updates to `"sold"` and order to `"completed"`.
+  4. Student B's **Dashboard ➔ My Purchases** displays the bought item with verified ownership.
 
-### 5. 🚨 Safety & Abuse Reporting Loop
-- **Student Report Drawer**: Flag suspicious or prohibited listings directly from the product detail modal with categories (e.g. *Misleading Price*, *Prohibited Item*, *Counterfeit*, *Spam*).
+### 6. 🚨 Safety & Abuse Reporting Loop
+- **Student Report Drawer**: Flag suspicious or prohibited listings directly from the product detail modal with categories (*Misleading Price*, *Prohibited Item*, *Counterfeit*, *Spam*).
 - **Direct Moderation Queue**: Reports are saved to MongoDB `/api/reports` and appear immediately in the **Admin Command Center** for investigation and resolution.
 
-### 6. 🎟️ Dedicated Campus Events Hub & Digital QR Passes
+### 7. 🎟️ Dedicated Campus Events Hub & Digital QR Passes
 - **Official Events Marketplace**: Standalone section for technical symposiums, hackathons, coding workshops, cultural fests, and sports tournaments.
-- **Instant Digital QR Passport**: Students can register with 1-click and receive a digital ticket pass with a unique QR code and Ticket ID (e.g. `TKT-HACK-8921`) ready to download or print for entry.
+- **Instant Digital QR Passport**: Students can register with 1-click and receive a digital ticket pass with a unique QR code and Ticket ID (e.g. `TKT-PASS-8921`) ready to download or print for entry.
 
-### 7. 📢 Student Wanted Bulletin (In Search Of - ISO)
+### 8. 📢 Student Wanted Bulletin (In Search Of - ISO)
 - **Live Peer Requirement Broadcast**: Post requests for out-of-stock items (specific textbook editions, mini-drafters, roller scales, Arduino kits).
-- **Branch & Urgency Badges**: Filter requests by engineering department and urgency level (High / Medium / Normal).
+- **Branch & Urgency Badges**: Filter requests by engineering department and urgency level.
 
-### 8. 💬 In-App Peer Chat & Safe Meetup Spots
+### 9. 💬 In-App Peer Chat & Safe Meetup Spots
 - **Direct Peer Messaging**: Negotiate prices, arrange item testing, and schedule campus meetups.
 - **1-Click Meetup Chips**: Suggested daylight campus zones (*Central Library Lobby*, *Student Union Quad*, *Engineering Complex Foyer*, *Main Canteen*).
 
-### 9. 🛡️ Interactive FAQ & Trust Center
-- **Live Search & Filter Badges**: Search questions and filter by *Trust*, *Buying & Selling*, *Meetups*, *Pricing*, and *Events*.
-- **Helpfulness Feedback**: Interactive voting (👍 / 👎) with actionable safety guidelines.
-
-### 10. 🛡️ Anti-Spam Math CAPTCHA Widget
-- Interactive arithmetic challenge preventing automated bot submissions when listing products or posting requirements (Module 7 security compliance).
+### 10. 🛡️ Interactive FAQ, Dark Theme & Math CAPTCHA
+- **Dynamic Dark/Light Mode**: Seamless theme switching with high-contrast badge colors and zero color overlapping.
+- **Interactive FAQ**: Search and filter by *Trust*, *Buying & Selling*, *Meetups*, *Pricing*, and *Events*.
+- **Anti-Spam Math CAPTCHA**: Dynamic arithmetic challenge on listing submissions to prevent bot abuse.
 
 ---
 
 ## 🛡️ Dedicated Admin Command Center
 
-Campus Administrators (`admin@campus.edu`) have a dedicated **Admin Command Center** (`activeTab === 'admin'`) with administrative controls separated from student views:
+Campus Administrators (`admin@campus.edu`) have an isolated **Admin Command Center** (`activeTab === 'admin'`) with administrative controls:
 
 ```mermaid
 graph TD
@@ -131,13 +141,13 @@ CampusCart is tailored for engineering universities and supports all 11 core dis
 graph TD
     Client[React 18 + Vite Frontend] <-->|REST API / JSON| Server[Node.js + Express Backend]
     Client <-->|WebSocket Events| SocketIO[Socket.io Real-time Hub]
-    Server <-->|Mongoose ODM| DB[(MongoDB Local / Atlas)]
+    Server <-->|Mongoose ODM| DB[(MongoDB Atlas Cloud DB)]
     Server <-->|JWT Auth & RBAC| Security[Security & Middleware]
 ```
 
 - **Frontend**: React 18, Vite, React-Bootstrap, Tailwind CSS, Lucide Icons, Material Symbols.
 - **Backend**: Node.js, Express.js (MVC Architecture), CORS, Cookie Parser, Morgan.
-- **Database**: MongoDB with Mongoose ODM (10+ Collections).
+- **Database**: MongoDB Atlas with Mongoose ODM (10+ Collections).
 - **Authentication**: JWT (JSON Web Tokens), Bcrypt.js password hashing, Role-Based Access Control (RBAC).
 - **State Management**: React Context API (`AppContext`) with dynamic local cache synchronization.
 
@@ -149,7 +159,8 @@ graph TD
 CampusCart/
 ├── frontend/                         # React Vite Single Page Application
 │   ├── public/
-│   │   ├── logo.svg                  # Custom CampusCart Graduation Cart Logo
+│   │   ├── _redirects                # Netlify SPA redirect rules
+│   │   ├── logo.svg                  # Custom CampusCart Brand Logo
 │   │   └── favicon.svg
 │   ├── src/
 │   │   ├── components/
@@ -159,10 +170,10 @@ CampusCart/
 │   │   │   │   ├── ScrollToTop.jsx        # Smooth Floating Scroll Button
 │   │   │   │   └── ToastNotification.jsx  # Floating User Feedback Alerts
 │   │   │   ├── layout/
-│   │   │   │   ├── Navbar.jsx             # Top Navbar with Notification Dropdown & Admin Center
+│   │   │   │   ├── Navbar.jsx             # Top Navbar with Live Notifications Dropdown & Admin Center
 │   │   │   │   └── Footer.jsx             # Comprehensive SEO & Campus Links Footer
 │   │   │   ├── modals/
-│   │   │   │   ├── AddListingModal.jsx    # Add Product with CAPTCHA & Branch
+│   │   │   │   ├── AddListingModal.jsx    # Image Picker (Upload, Presets, URL) + CAPTCHA
 │   │   │   │   ├── AuthModal.jsx          # Login/Signup/Forgot Password Modal
 │   │   │   │   ├── CartModal.jsx          # Shopping Bag & Checkout Flow
 │   │   │   │   ├── ChatModal.jsx          # Live Student Chat & Meetup Chips
@@ -181,11 +192,12 @@ CampusCart/
 │   │   │   └── AppContext.jsx             # Global State & User Isolation Logic
 │   │   ├── services/
 │   │   │   ├── api.js                     # Central Axios API Service
-│   │   │   └── mockData.js                # Fallback Datasets & INR Prices
+│   │   │   └── mockData.js                # Preset Images, Fallbacks & Datasets
 │   │   ├── App.jsx                        # Master Component Routing
 │   │   ├── main.jsx                       # App Bootstrap Entry
 │   │   └── index.css                      # Tailwind & Glassmorphism Styles
 │   ├── index.html
+│   ├── vercel.json                        # Vercel SPA rewrite rules
 │   ├── package.json
 │   ├── tailwind.config.js
 │   └── vite.config.js
@@ -193,7 +205,8 @@ CampusCart/
 ├── server/                           # Express.js MongoDB API Server
 │   ├── src/
 │   │   ├── config/
-│   │   │   └── db.js                      # MongoDB Connection Config
+│   │   │   ├── db.js                      # MongoDB Connection Config
+│   │   │   └── socket.js                  # Socket.io Real-Time Hub
 │   │   ├── controllers/
 │   │   │   ├── adminController.js         # Admin Stats, User Management, Reports Queue
 │   │   │   ├── authController.js          # Registration, Login, Role Sync, Forgot PW
@@ -246,7 +259,7 @@ CampusCart/
 
 ### Prerequisites
 - **Node.js**: v18.0.0 or higher
-- **MongoDB**: Local MongoDB instance (`mongodb://127.0.0.1:27017`) or MongoDB Atlas URI
+- **MongoDB**: Local MongoDB instance (`mongodb://127.0.0.1:27017`) or MongoDB Atlas Cloud URI
 
 ---
 
@@ -302,9 +315,6 @@ When seeded, the following accounts are available for immediate testing:
 | **🎓 Student** | Sarah Jenkins (IT) | `sarah@campus.edu` | `password123` | Buy, Sell, Chat, Wishlist, Book Tickets |
 | **🛡️ Admin / Faculty** | Campus Administrator | `admin@campus.edu` | `password123` | **Full Admin Command Center**: Metrics, User Directory & Suspension, Marketplace Moderation, Event Publisher, Reports Queue |
 
-> [!TIP]
-> You can also register any new account instantly with your preferred engineering department.
-
 ---
 
 ## 📡 API Endpoints Reference
@@ -323,7 +333,7 @@ When seeded, the following accounts are available for immediate testing:
 - `DELETE /api/products/:id` — Remove listing.
 
 ### Orders & Sales (`/api/orders`)
-- `GET /api/orders/my` — Fetch incoming sales orders and buyer purchase history.
+- `GET /api/orders/my-orders` — Fetch incoming sales orders and buyer purchase history.
 - `POST /api/orders` — Create a new purchase request / offer.
 - `PATCH /api/orders/:id/accept` — Accept buyer's purchase request.
 - `PATCH /api/orders/:id/reject` — Reject buyer's purchase request.
@@ -369,14 +379,45 @@ When seeded, the following accounts are available for immediate testing:
 
 ---
 
-## 🎓 Academic Syllabus & GTU Compliance
+## 🌐 Production Cloud Deployment Guide
 
-CampusCart fulfills all requirements for **Web Application Development (GTU BE05000281)**:
-- **Module 1 & 2**: HTML5 Semantic Structure, CSS3 Custom Properties, Responsive Layouts, Bootstrap Grid.
-- **Module 3**: Client-side state synchronization, DOM manipulation, `localStorage` caching.
-- **Module 4 & 5**: Node.js & Express.js RESTful API, MongoDB Mongoose schema design, MVC pattern.
-- **Module 6**: Real-time communication and interactive UI components.
-- **Module 7**: Anti-Spam Math CAPTCHA validation, JWT security, and Role-Based Access Control.
+| Component | Cloud Platform | Build Command | Output / Root Directory | Key Environment Variables |
+|---|---|---|---|---|
+| **Database** | MongoDB Atlas (M0 Free) | — | — | `IP: 0.0.0.0/0 (Allow Anywhere)` |
+| **Backend API** | Render (Web Service) | `npm install` | `server` | `NODE_ENV=production`, `PORT=5000`, `MONGO_URI`, `JWT_SECRET`, `CLIENT_URL` |
+| **Frontend Client** | Vercel | `npm run build` | `frontend` (`dist`) | `VITE_API_URL=https://campuscart-api.onrender.com/api` |
+
+---
+
+## 🎓 Academic Syllabus & Curriculum Mapping (WAD & ADBMS)
+
+CampusCart is engineered to demonstrate complete mastery of the university curriculum across both **Web Application Development (WAD)** and **Advanced Database Management Systems (ADBMS)**.
+
+---
+
+### 1. Web Application Development (WAD) — Subject Code: `BE05000281`
+
+| Module No. | Module Name | Detailed Syllabus Topics Covered | Implementation in CampusCart |
+| :---: | :--- | :--- | :--- |
+| **Module 1** | **Introduction to Web Technologies** | Evolution of Websites, Client–Server Architecture, Frontend/Backend/Database Overview, Role in Digital Commerce, Static vs Dynamic Websites | Decoupled 3-tier MERN architecture (React Vite SPA ➔ Node/Express API ➔ MongoDB Atlas Cloud Database) with live reactive dynamic state components. |
+| **Module 2** | **HTML & CSS Fundamentals** | HTML Document Structure, Semantic Tags (`<header>`, `<main>`, `<section>`, `<footer>`), Forms, Tables, Selectors, Flexbox Layout, Responsive Design, Media Queries, Bootstrap & Tailwind CSS | Full HTML5 semantic structure, Custom Glassmorphism UI, Responsive Tailwind CSS + Bootstrap grid, Dark Mode theme switcher (`index.css`), responsive modals. |
+| **Module 3** | **JavaScript Fundamentals** | Variables & Datatypes, Arrays & Objects, DOM Manipulation, Event Handling, Browser LocalStorage, Asynchronous Programming, Promises, Callbacks | React Virtual DOM, User-Scoped `localStorage` caching (`campuscart_cart_<email>`, `campuscart_wishlist_<email>`), Async/Await API orchestration, custom event triggers. |
+| **Module 4** | **APIs & HTTP Communication** | Client–Server Communication, HTTP Request/Response, Status Codes (200, 201, 400, 401, 403, 404, 500), Query Parameters & Request Body, CRUD Operations, JSON Handling | RESTful HTTP API with JSON payloads, standard status codes, query filtering (`/api/products?search=&category=`), centralized Axios interceptors for JWT injection. |
+| **Module 5** | **Backend Development with Node.js** | Node.js Runtime, npm Package Management, Express.js HTTP Server, Routing & Custom Middlewares, REST API Development, Database Connectivity, Authentication & Authorization | Express.js MVC backend, modular routing (`/api/auth`, `/api/products`, `/api/orders`, `/api/admin`, `/api/reports`), JWT auth middleware (`protect`, `adminOnly`), bcrypt password hashing. |
+| **Module 6** | **Frontend Development with React.js** | React 18, JSX Basics, Component-Based Architecture, Functional Components, Props & State, `useState`, `useEffect`, `useCallback`, Conditional Rendering, List Rendering, Axios Integration, CORS | Modern React SPA, Context API (`AppContext`), custom hooks, dynamic modal overlays, live WebSocket / Polling sync, CORS configuration. |
+| **Module 7** | **Deployment & Modern Web** | Hosting Basics, Domain Management, SEO Introduction, CAPTCHA Concepts, Cloud Deployment | Math CAPTCHA Anti-Spam Verification widget on listings/requests, Production Cloud Deployment on **Render** (API), **Vercel** (SPA), and **MongoDB Atlas**. |
+
+---
+
+### 2. Advanced Database Management System (ADBMS) — Subject Code: `BE05016031`
+
+| Unit No. | Unit Name | Detailed Syllabus Topics Covered | Implementation in CampusCart |
+| :---: | :--- | :--- | :--- |
+| **Unit 1** | **Database Architecture & Concurrency** | Client–Server Database Models (2-tier & 3-tier), Concurrency Control Techniques, Lock-Based Protocols, Two-Phase Locking (2PL), Parallel & Distributed Database Fundamentals | 3-tier scalable MERN architecture, optimistic concurrency control in order state transitions, distributed database deployment via MongoDB Atlas replicaset across cloud nodes. |
+| **Unit 2** | **Object-Based Databases and Complex Types** | Complex Data Types, Structured Types, Array & Multiset Types, Object Identity (OI), Reference Types, Schema Definition, Nested Queries, Aggregate Functions | Mongoose Schema definitions with ObjectId references (`sellerId`, `buyerId`, `productId`), nested sub-documents (attendees in `Event`, seller profiles in `Product`), array manipulations. |
+| **Unit 3** | **Advanced Database Techniques (NoSQL & MongoDB)** | Structured vs Unstructured Data, NoSQL Concepts & Data Modeling, SQL vs NoSQL, MongoDB Architecture, BSON Types, CRUD operations, `find()`, Projections, Query Criteria, Aggregation Pipelines | MongoDB document store with 10+ schemas (`User`, `Product`, `Order`, `Report`, `Event`, `Requirement`, `Notification`, `Chat`), Mongoose aggregations, index optimization, field projection. |
+| **Unit 4** | **Advanced Transaction Processing** | ACID Properties in Multi-Document Workflows, Transaction Monitors, Compensating Transactions, Real-Time Transaction Systems, Workflow Recovery | Transactional order flow: Item purchase ➔ Seller acceptance ➔ Status mutation to `"sold"` ➔ Automatic ledger update in buyer ledger with data consistency. |
+| **Unit 5** | **Modern Developments in Database Technologies** | Business Intelligence & Metrics, Data Warehousing, Classification & Categorization, Multimedia Databases, Digital Storage | Admin Executive Analytics pipeline aggregating platform metrics, category-wise classification, rich multimedia BSON storage & cloud asset references. |
 
 ---
 
@@ -384,8 +425,8 @@ CampusCart fulfills all requirements for **Web Application Development (GTU BE05
 
 This project is created for academic and educational purposes under the **MIT License**.
 
-- **Author**: Preet Darji , Deepak Valani , Dhairya Koria 
+- **Authors**: Preet Darji, Deepak Valani, Dhairya Koria
 - **Repository**: [https://github.com/PreetDarji22/CampusCart](https://github.com/PreetDarji22/CampusCart)
 
 ---
-*Built with ❤️ as a WAD&ADBMS mini project and for campus student communities.*
+*Built with ❤️ as a WAD & ADBMS University Project for campus student communities.*
