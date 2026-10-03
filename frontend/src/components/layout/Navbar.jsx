@@ -103,10 +103,19 @@ export const AppNavbar = () => {
 
   const handleNotificationClick = (notif) => {
     markNotificationRead(notif.id);
-    if (notif.type === 'purchase_request' || notif.type === 'order_accepted' || notif.type === 'item_sold') {
+    if (
+      notif.type === 'purchase_request' ||
+      notif.type === 'order_request' ||
+      notif.type === 'order_accepted' ||
+      notif.type === 'order_rejected' ||
+      notif.type === 'item_sold' ||
+      notif.type === 'product_sold'
+    ) {
       setActiveTab('seller');
-    } else if (notif.type === 'event_registered') {
+    } else if (notif.type === 'event_registered' || notif.link === 'events') {
       setActiveTab('events');
+    } else if (notif.type === 'report_resolved') {
+      setActiveTab(currentUser?.role === 'admin' ? 'admin' : 'discover');
     }
     setIsNotificationOpen(false);
   };
@@ -342,18 +351,24 @@ export const AppNavbar = () => {
                         }`}
                       >
                         <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5 ${
-                          notif.type === 'purchase_request'
+                          (notif.type === 'purchase_request' || notif.type === 'order_request')
                             ? 'bg-amber-100 dark:bg-amber-950/60 text-amber-600 dark:text-amber-400'
-                            : notif.type === 'item_sold'
+                            : (notif.type === 'item_sold' || notif.type === 'product_sold')
                             ? 'bg-emerald-100 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400'
                             : notif.type === 'order_accepted'
                             ? 'bg-blue-100 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400'
+                            : notif.type === 'order_rejected'
+                            ? 'bg-rose-100 dark:bg-rose-950/60 text-rose-600 dark:text-rose-400'
+                            : notif.type === 'event_registered'
+                            ? 'bg-purple-100 dark:bg-purple-950/60 text-purple-600 dark:text-purple-400'
                             : 'bg-indigo-100 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400'
                         }`}>
-                          {notif.type === 'purchase_request' && <ShoppingCart className="w-4 h-4" />}
-                          {notif.type === 'item_sold' && <Check className="w-4 h-4" />}
+                          {(notif.type === 'purchase_request' || notif.type === 'order_request') && <ShoppingCart className="w-4 h-4" />}
+                          {(notif.type === 'item_sold' || notif.type === 'product_sold') && <Check className="w-4 h-4" />}
                           {notif.type === 'order_accepted' && <Package className="w-4 h-4" />}
+                          {notif.type === 'order_rejected' && <X className="w-4 h-4" />}
                           {notif.type === 'event_registered' && <Sparkles className="w-4 h-4" />}
+                          {notif.type !== 'purchase_request' && notif.type !== 'order_request' && notif.type !== 'item_sold' && notif.type !== 'product_sold' && notif.type !== 'order_accepted' && notif.type !== 'order_rejected' && notif.type !== 'event_registered' && <Bell className="w-4 h-4" />}
                         </div>
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center justify-between gap-1">
@@ -361,7 +376,7 @@ export const AppNavbar = () => {
                               {notif.title}
                             </h4>
                             <span className="text-[10px] text-slate-400 whitespace-nowrap">
-                              {notif.createdAt}
+                              {notif.time || notif.createdAt || 'Just now'}
                             </span>
                           </div>
                           <p className="text-xs text-slate-600 dark:text-slate-300 line-clamp-2 mt-0.5">

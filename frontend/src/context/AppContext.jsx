@@ -35,9 +35,12 @@ export const AppProvider = ({ children }) => {
     }
   };
 
-  // Compute user-scoped storage key so each user has their own private Cart & Wishlist
-  const getUserCartKey = (user) => (user?.email ? `campuscart_cart_${user.email.toLowerCase()}` : 'campuscart_cart_guest');
-  const getUserWishlistKey = (user) => (user?.email ? `campuscart_wishlist_${user.email.toLowerCase()}` : 'campuscart_wishlist_guest');
+  // Compute user-scoped storage key so each user has their own private Cart, Wishlist, Notifications & Orders
+  const getUserCartKey = (user) => (user?.email ? `campuscart_cart_${user.email.toLowerCase().replace(/[^a-z0-9]/g, '_')}` : 'campuscart_cart_guest');
+  const getUserWishlistKey = (user) => (user?.email ? `campuscart_wishlist_${user.email.toLowerCase().replace(/[^a-z0-9]/g, '_')}` : 'campuscart_wishlist_guest');
+  const getUserNotificationsKey = (user) => (user?.email ? `campuscart_notifications_${user.email.toLowerCase().replace(/[^a-z0-9]/g, '_')}` : 'campuscart_notifications_guest');
+  const getUserOrdersKey = (user) => (user?.email ? `campuscart_orders_${user.email.toLowerCase().replace(/[^a-z0-9]/g, '_')}` : 'campuscart_orders_guest');
+  const getUserMyListingsKey = (user) => (user?.email ? `campuscart_my_listings_${user.email.toLowerCase().replace(/[^a-z0-9]/g, '_')}` : 'campuscart_my_listings_guest');
 
   // Navigation tab: 'discover' | 'browse' | 'seller'
   const [activeTab, setActiveTab] = useState('discover');
@@ -88,26 +91,11 @@ export const AppProvider = ({ children }) => {
   // User-scoped Cart items
   const [cart, setCart] = useState(() => safeParse(getUserCartKey(currentUser), []));
 
-  // User's own listings IDs
-  const [myListingIds, setMyListingIds] = useState(() => safeParse('campuscart_my_listings', ['prod-3', 'prod-5']));
+  // User-scoped Listings IDs
+  const [myListingIds, setMyListingIds] = useState(() => safeParse(getUserMyListingsKey(currentUser), []));
 
-  // Orders state (Purchase Requests)
-  const [orders, setOrders] = useState(() => safeParse('campuscart_orders', [
-    {
-      id: 'ord-101',
-      productId: 'prod-1',
-      productTitle: 'TI-84 Plus CE Graphing Calculator',
-      productImage: 'https://images.unsplash.com/photo-1611125832047-1d7ad1e8e48b?w=600',
-      price: 3200,
-      buyerName: 'Maya Lin',
-      buyerEmail: 'maya.lin@stanford.edu',
-      buyerAvatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150',
-      sellerEmail: 'alex.chen@stanford.edu',
-      status: 'pending',
-      notes: 'Can meet at Library Lobby today at 3pm!',
-      createdAt: '10 mins ago'
-    }
-  ]));
+  // User-scoped Orders state (Purchase Requests & Sales)
+  const [orders, setOrders] = useState(() => safeParse(getUserOrdersKey(currentUser), []));
 
   // Modal & Chat states
   const [selectedProduct, setSelectedProduct] = useState(null);
@@ -124,62 +112,53 @@ export const AppProvider = ({ children }) => {
   const [activeProductContext, setActiveProductContext] = useState(null);
   const [toast, setToast] = useState({ show: false, message: '', title: '' });
 
-  // Whenever currentUser changes (login, logout, switch account), switch to that user's private Cart & Wishlist
-  useEffect(() => {
-    const userCart = safeParse(getUserCartKey(currentUser), []);
-    const userWishlist = safeParse(getUserWishlistKey(currentUser), []);
-    setCart(userCart);
-    setWishlist(userWishlist);
-  }, [currentUser?.email]);
-
-  // Sync user-scoped cart to localStorage whenever it changes
-  useEffect(() => {
-    localStorage.setItem(getUserCartKey(currentUser), JSON.stringify(cart));
-  }, [cart, currentUser?.email]);
-
-  // Sync user-scoped wishlist to localStorage whenever it changes
-  useEffect(() => {
-    localStorage.setItem(getUserWishlistKey(currentUser), JSON.stringify(wishlist));
-  }, [wishlist, currentUser?.email]);
-
-  // Live Campus Notifications state
-  const [notifications, setNotifications] = useState(() => safeParse('campuscart_notifications', [
-    {
-      id: 'notif-1',
-      type: 'order_request',
-      title: 'New Purchase Request',
-      message: 'Maya Lin requested to buy your TI-84 Plus Calculator (₹3,200)',
-      time: '10 mins ago',
-      isRead: false,
-      link: 'seller'
-    },
-    {
-      id: 'notif-2',
-      type: 'order_accepted',
-      title: 'Order Accepted!',
-      message: 'Alex Chen accepted your offer for Engineering Mechanics Book. Meetup ready!',
-      time: '1 hour ago',
-      isRead: false,
-      link: 'seller'
-    }
-  ]));
+  // User-scoped Live Notifications state (Isolated completely per account)
+  const [notifications, setNotifications] = useState(() => safeParse(getUserNotificationsKey(currentUser), []));
 
   const fetchLiveNotifications = useCallback(async () => {
+    const token = localStorage.getItem('campuscart_token');
+    if (!token) return;
     try {
       const res = await fetchNotificationsApi();
-      if (res.data && res.data.length > 0) {
-        const mappedNotifs = res.data.map(n => ({
-          id: n._id,
-          type: n.type,
-          title: n.type === 'order_request' ? 'New Purchase Request' : n.type === 'order_accepted' ? 'Order Accepted!' : 'Campus Notice',
-          message: n.message,
-          time: n.createdAt ? new Date(n.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'Just now',
-          isRead: n.isRead,
-          link: 'seller'
-        }));
+      if (res && res.data) {
+        const mappedNotifs = res.data.map(n => {
+          let title = 'Campus Notification';
+          if (n.type === 'order_request' || n.type === 'purchase_request') {
+            title = 'New Purchase Request';
+          } else if (n.type === 'order_accepted') {
+            title = 'Order Accepted!';
+          } else if (n.type === 'order_rejected') {
+            title = 'Order Declined';
+          } else if (n.type === 'product_sold' || n.type === 'item_sold') {
+            title = 'Item Marked Sold';
+          } else if (n.type === 'event_registered') {
+            title = 'Event Pass Confirmed';
+          } else if (n.type === 'new_message') {
+            title = 'New Message';
+          } else if (n.type === 'report_resolved') {
+            title = 'Safety Report Updated';
+          }
+
+          const timeFormatted = n.createdAt
+            ? new Date(n.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+            : 'Just now';
+
+          return {
+            id: n._id || n.id,
+            type: n.type,
+            title,
+            message: n.message,
+            time: timeFormatted,
+            createdAt: timeFormatted,
+            isRead: Boolean(n.isRead),
+            link: n.type?.includes('event') ? 'events' : 'seller'
+          };
+        });
         setNotifications(mappedNotifs);
       }
-    } catch {}
+    } catch (err) {
+      console.log('[API Notifications Note]', err?.message);
+    }
   }, []);
 
   const markAllNotificationsRead = async () => {
@@ -198,15 +177,13 @@ export const AppProvider = ({ children }) => {
 
   const unreadNotificationsCount = notifications.filter(n => !n.isRead).length;
 
-  useEffect(() => {
-    localStorage.setItem('campuscart_notifications', JSON.stringify(notifications));
-  }, [notifications]);
-
   // Fetch live orders (My Purchases & My Sales) from MongoDB
   const fetchLiveOrders = useCallback(async () => {
+    const token = localStorage.getItem('campuscart_token');
+    if (!token) return;
     try {
       const res = await fetchMyOrders();
-      if (res.data) {
+      if (res && res.data) {
         const { purchases = [], sales = [] } = res.data;
         const mappedPurchases = purchases.map(ord => ({
           id: ord._id,
@@ -250,6 +227,60 @@ export const AppProvider = ({ children }) => {
       // Offline / fallback storage
     }
   }, [currentUser]);
+
+  // Whenever currentUser changes (login, logout, switch account), switch all private user data
+  useEffect(() => {
+    const userCart = safeParse(getUserCartKey(currentUser), []);
+    const userWishlist = safeParse(getUserWishlistKey(currentUser), []);
+    const userNotifs = safeParse(getUserNotificationsKey(currentUser), []);
+    const userOrders = safeParse(getUserOrdersKey(currentUser), []);
+    const userListings = safeParse(getUserMyListingsKey(currentUser), []);
+
+    setCart(userCart);
+    setWishlist(userWishlist);
+    setNotifications(userNotifs);
+    setOrders(userOrders);
+    setMyListingIds(userListings);
+
+    if (currentUser) {
+      fetchLiveNotifications();
+      fetchLiveOrders();
+    } else {
+      setNotifications([]);
+      setOrders([]);
+    }
+  }, [currentUser?.email, fetchLiveNotifications, fetchLiveOrders]);
+
+  // Sync user-scoped states to localStorage
+  useEffect(() => {
+    localStorage.setItem(getUserCartKey(currentUser), JSON.stringify(cart));
+  }, [cart, currentUser?.email]);
+
+  useEffect(() => {
+    localStorage.setItem(getUserWishlistKey(currentUser), JSON.stringify(wishlist));
+  }, [wishlist, currentUser?.email]);
+
+  useEffect(() => {
+    localStorage.setItem(getUserNotificationsKey(currentUser), JSON.stringify(notifications));
+  }, [notifications, currentUser?.email]);
+
+  useEffect(() => {
+    localStorage.setItem(getUserOrdersKey(currentUser), JSON.stringify(orders));
+  }, [orders, currentUser?.email]);
+
+  useEffect(() => {
+    localStorage.setItem(getUserMyListingsKey(currentUser), JSON.stringify(myListingIds));
+  }, [myListingIds, currentUser?.email]);
+
+  // Auto-sync polling every 5 seconds for real-time notifications & order synchronization across accounts
+  useEffect(() => {
+    if (!currentUser) return;
+    const interval = setInterval(() => {
+      fetchLiveNotifications();
+      fetchLiveOrders();
+    }, 5000);
+    return () => clearInterval(interval);
+  }, [currentUser?.email, fetchLiveNotifications, fetchLiveOrders]);
 
   // Fetch live products, requirements, and events from MongoDB API on load
   useEffect(() => {
@@ -702,7 +733,7 @@ export const AppProvider = ({ children }) => {
     }
 
     setOrders(prev => [newOrder, ...prev.filter(o => o.id !== newOrder.id)]);
-    localStorage.setItem('campuscart_orders', JSON.stringify([newOrder, ...orders]));
+    fetchLiveOrders();
   };
 
   const acceptPurchaseRequest = async (orderId) => {
@@ -717,6 +748,8 @@ export const AppProvider = ({ children }) => {
       triggerToast(`Accepted buy request for "${targetOrder.productTitle}"! Ready for meetup.`, 'Request Accepted');
       openChatWith({ name: targetOrder.buyerName, avatar: targetOrder.buyerAvatar }, { title: targetOrder.productTitle });
     }
+    fetchLiveOrders();
+    fetchLiveNotifications();
   };
 
   const rejectPurchaseRequest = async (orderId) => {
@@ -727,6 +760,8 @@ export const AppProvider = ({ children }) => {
     }
     setOrders(prev => prev.map(ord => ord.id === orderId ? { ...ord, status: 'rejected' } : ord));
     triggerToast('Purchase request declined.', 'Seller Hub');
+    fetchLiveOrders();
+    fetchLiveNotifications();
   };
 
   const openChatWith = (partner, productCtx) => {
