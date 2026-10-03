@@ -20,7 +20,7 @@ if (!fs.existsSync(uploadsDir)) {
   fs.mkdirSync(uploadsDir, { recursive: true });
 }
 
-// Connect to MongoDB
+// Connect to MongoDB Database (Atlas Cloud / Local)
 connectDB();
 
 // Create HTTP Server
