@@ -122,11 +122,30 @@ export const getProductById = asyncHandler(async (req, res, next) => {
 export const createProduct = asyncHandler(async (req, res, next) => {
   const { title, description, price, originalPrice, category, images, condition, meetupLocation } = req.body;
 
-  let categoryDoc;
+  let categoryDoc = null;
   if (category) {
-    categoryDoc = await Category.findOne({
-      $or: [{ _id: category.match(/^[0-9a-fA-F]{24}$/) ? category : null }, { name: category }]
-    });
+    const isObjectId = typeof category === 'string' && /^[0-9a-fA-F]{24}$/.test(category);
+    if (isObjectId) {
+      categoryDoc = await Category.findById(category);
+    }
+    if (!categoryDoc) {
+      let searchName = category;
+      const lower = String(category).toLowerCase();
+      if (lower === 'textbooks' || lower === 'books') searchName = 'Books';
+      else if (lower === 'clothing' || lower === 'apparel') searchName = 'Apparel';
+      else if (lower === 'dorm essentials' || lower === 'furniture') searchName = 'Furniture';
+      else if (lower === 'electronics') searchName = 'Electronics';
+      else if (lower === 'cycles' || lower === 'bicycles') searchName = 'Cycles';
+
+      categoryDoc = await Category.findOne({
+        $or: [
+          { name: new RegExp(`^${searchName}$`, 'i') },
+          { slug: new RegExp(`^${searchName}$`, 'i') },
+          { name: new RegExp(`^${category}$`, 'i') },
+          { slug: new RegExp(`^${category}$`, 'i') }
+        ]
+      });
+    }
   }
 
   if (!categoryDoc) {

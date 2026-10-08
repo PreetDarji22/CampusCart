@@ -3,7 +3,7 @@ import { Modal, Form, Button, Row, Col, Alert } from 'react-bootstrap';
 import { useApp } from '../../context/AppContext';
 
 export const CreateEventModal = () => {
-  const { isCreateEventOpen, setIsCreateEventOpen, addNewEvent, triggerToast } = useApp();
+  const { isCreateEventOpen, setIsCreateEventOpen, addNewEvent, triggerToast, setIsAuthOpen } = useApp();
 
   const [formData, setFormData] = useState({
     title: '',
@@ -76,7 +76,26 @@ export const CreateEventModal = () => {
         </Modal.Header>
 
         <Modal.Body className="pt-4">
-          {errorMsg && <Alert variant="danger" className="py-2 text-xs rounded-xl">{errorMsg}</Alert>}
+          {errorMsg && (
+            <div className="bg-rose-50 dark:bg-rose-950/50 border border-rose-200 dark:border-rose-900 text-rose-700 dark:text-rose-300 text-xs p-3 rounded-xl mb-3 font-medium flex items-center justify-between gap-2">
+              <div className="flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-rose-500 flex-shrink-0"></span>
+                <span>{errorMsg}</span>
+              </div>
+              {(errorMsg.toLowerCase().includes('token') || errorMsg.toLowerCase().includes('log in') || errorMsg.toLowerCase().includes('authorized')) && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    localStorage.removeItem('campuscart_token');
+                    setIsAuthOpen(true);
+                  }}
+                  className="px-2.5 py-1 bg-rose-600 hover:bg-rose-700 text-white font-semibold text-[11px] rounded-lg transition-all ml-auto flex-shrink-0"
+                >
+                  Sign In Again
+                </button>
+              )}
+            </div>
+          )}
 
           <Form onSubmit={handleSubmit} className="space-y-4">
             <Form.Group>

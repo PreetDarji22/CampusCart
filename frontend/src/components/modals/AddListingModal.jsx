@@ -20,10 +20,10 @@ import {
   QUICK_IMAGE_PRESETS
 } from '../../services/mockData';
 import { CaptchaWidget } from '../common/CaptchaWidget';
-import { createProductApi } from '../../services/api';
+import { createProductApi, uploadImageApi } from '../../services/api';
 
 export const AddListingModal = () => {
-  const { isAddListingOpen, setIsAddListingOpen, addNewListing, triggerToast } = useApp();
+  const { isAddListingOpen, setIsAddListingOpen, addNewListing, triggerToast, setIsAuthOpen } = useApp();
 
   const [formData, setFormData] = useState({
     title: '',
@@ -37,6 +37,7 @@ export const AddListingModal = () => {
     description: ''
   });
 
+  const [rawFile, setRawFile] = useState(null);
   const [imageMode, setImageMode] = useState('upload'); // 'upload' | 'presets' | 'url'
   const [isDragging, setIsDragging] = useState(false);
   const [isCaptchaVerified, setIsCaptchaVerified] = useState(false);
@@ -63,6 +64,7 @@ export const AddListingModal = () => {
       return;
     }
 
+    setRawFile(file);
     const reader = new FileReader();
     reader.onload = (event) => {
       setFormData(prev => ({ ...prev, image: event.target.result }));
@@ -116,7 +118,18 @@ export const AddListingModal = () => {
     setIsSubmitting(true);
     try {
       // If user has not chosen or uploaded an image, automatically assign the category default image
-      const finalImage = formData.image?.trim() || fallbackImageForCategory;
+      let finalImage = formData.image?.trim() || fallbackImageForCategory;
+
+      if (rawFile && imageMode === 'upload') {
+        try {
+          const uploadRes = await uploadImageApi(rawFile);
+          if (uploadRes?.url) {
+            finalImage = uploadRes.url;
+          }
+        } catch (uploadErr) {
+          console.log('[Upload API Note, utilizing direct image payload]:', uploadErr.message);
+        }
+      }
 
       const newProductPayload = {
         title: formData.title,
@@ -136,6 +149,7 @@ export const AddListingModal = () => {
 
       setIsAddListingOpen(false);
       setIsCaptchaVerified(false);
+      setRawFile(null);
       setFormData({
         title: '',
         category: 'Textbooks',
@@ -173,9 +187,23 @@ export const AddListingModal = () => {
       <Modal.Body className="p-5 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100" style={{ maxHeight: '78vh', overflowY: 'auto' }}>
         <Form onSubmit={handleSubmit}>
           {errorMsg && (
-            <div className="bg-rose-50 dark:bg-rose-950/50 border border-rose-200 dark:border-rose-900 text-rose-700 dark:text-rose-300 text-xs p-3 rounded-xl mb-3 font-medium flex items-center gap-2">
-              <span className="w-2 h-2 rounded-full bg-rose-500"></span>
-              {errorMsg}
+            <div className="bg-rose-50 dark:bg-rose-950/50 border border-rose-200 dark:border-rose-900 text-rose-700 dark:text-rose-300 text-xs p-3 rounded-xl mb-3 font-medium flex items-center justify-between gap-2">
+              <div className="flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-rose-500 flex-shrink-0"></span>
+                <span>{errorMsg}</span>
+              </div>
+              {(errorMsg.toLowerCase().includes('token') || errorMsg.toLowerCase().includes('log in') || errorMsg.toLowerCase().includes('authorized')) && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    localStorage.removeItem('campuscart_token');
+                    setIsAuthOpen(true);
+                  }}
+                  className="px-2.5 py-1 bg-rose-600 hover:bg-rose-700 text-white font-semibold text-[11px] rounded-lg transition-all ml-auto flex-shrink-0"
+                >
+                  Sign In Again
+                </button>
+              )}
             </div>
           )}
 

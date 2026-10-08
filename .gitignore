@@ -28,3 +28,7 @@ lerna-debug.log*
 *.sln
 *.sw?
 .DS_Store
+
+# Uploads
+server/public/uploads/*
+!server/public/uploads/.gitkeep

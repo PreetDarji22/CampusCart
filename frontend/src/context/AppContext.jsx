@@ -457,6 +457,12 @@ export const AppProvider = ({ children }) => {
   };
 
   const addNewListing = async (newProduct) => {
+    const token = localStorage.getItem('campuscart_token');
+    if (!token) {
+      setIsAuthOpen(true);
+      throw new Error('Please log in with your campus account to publish listings to MongoDB.');
+    }
+
     let createdProduct = null;
     try {
       const res = await createProductApi(newProduct);
@@ -489,32 +495,15 @@ export const AppProvider = ({ children }) => {
         };
       }
     } catch (err) {
-      console.log('[API Product Create Note]', err.message);
+      const msg = err.response?.data?.message || err.message || 'Failed to save listing in database.';
+      throw new Error(msg);
     }
 
-    if (!createdProduct) {
-      createdProduct = {
-        ...newProduct,
-        id: `prod-${Date.now()}`,
-        postedAt: 'Just now',
-        views: 1,
-        department: newProduct.department || currentUser?.department || 'Computer Science',
-        seller: {
-          name: currentUser?.name || 'Student',
-          email: currentUser?.email || '',
-          avatar: currentUser?.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150',
-          verified: currentUser?.verified ?? true,
-          department: currentUser?.department || 'Computer Science & Engineering (CSE / CS)',
-          year: currentUser?.year || 'Senior (Year 4)',
-          rating: 5.0,
-          meetupLocation: newProduct.meetupLocation || 'Central Library Lobby & Steps'
-        }
-      };
+    if (createdProduct) {
+      setProducts(prev => [createdProduct, ...prev.filter(p => p.id !== createdProduct.id)]);
+      setMyListingIds(prev => [createdProduct.id, ...prev]);
+      triggerToast(`Listing for "${createdProduct.title}" is now LIVE in MongoDB & on CampusCart!`, 'Listing Published');
     }
-
-    setProducts(prev => [createdProduct, ...prev.filter(p => p.id !== createdProduct.id)]);
-    setMyListingIds(prev => [createdProduct.id, ...prev]);
-    triggerToast(`Listing for "${createdProduct.title}" is now LIVE in MongoDB & on CampusCart!`, 'Listing Published');
   };
 
   const addNewRequest = async (reqPayload) => {
@@ -570,6 +559,12 @@ export const AppProvider = ({ children }) => {
 
   // Event Management (Admin Post & Student Ticket Registration)
   const addNewEvent = async (eventPayload) => {
+    const token = localStorage.getItem('campuscart_token');
+    if (!token) {
+      setIsAuthOpen(true);
+      throw new Error('Please log in with your campus admin account to publish events to MongoDB.');
+    }
+
     try {
       const res = await createEventApi(eventPayload);
       if (res.data) {
@@ -578,21 +573,13 @@ export const AppProvider = ({ children }) => {
           ...res.data
         };
         setEvents(prev => [createdEvent, ...prev]);
-        triggerToast(`Event "${createdEvent.title}" published to campus feed!`, 'Event Live 🎉');
-        return;
+        triggerToast(`Event "${createdEvent.title}" published to campus feed & MongoDB!`, 'Event Live 🎉');
+        return createdEvent;
       }
     } catch (err) {
-      console.log('[API Event Error]', err);
+      const msg = err.response?.data?.message || err.message || 'Failed to publish event to database.';
+      throw new Error(msg);
     }
-
-    const fallbackEvent = {
-      ...eventPayload,
-      id: `ev-${Date.now()}`,
-      registeredCount: 0,
-      totalSlots: Number(eventPayload.totalSlots) || 100
-    };
-    setEvents(prev => [fallbackEvent, ...prev]);
-    triggerToast(`Event "${fallbackEvent.title}" published!`, 'Event Live 🎉');
   };
 
   const registerForEvent = async (eventId, bookingData) => {

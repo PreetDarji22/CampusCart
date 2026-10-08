@@ -228,6 +228,18 @@ export const createReportApi = async (reportData) => {
   return response.data;
 };
 
+// File & Image Upload API
+export const uploadImageApi = async (file) => {
+  const formData = new FormData();
+  formData.append('image', file);
+  const response = await api.post('/upload', formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data'
+    }
+  });
+  return response.data;
+};
+
 export default api;
 
 

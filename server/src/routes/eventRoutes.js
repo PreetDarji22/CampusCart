@@ -12,11 +12,11 @@ const router = express.Router();
 
 router.route('/')
   .get(getEvents)
-  .post(protect, authorize('admin'), createEvent);
+  .post(protect, createEvent);
 
 router.route('/:id')
   .get(getEventById)
-  .delete(protect, authorize('admin'), deleteEvent);
+  .delete(protect, deleteEvent);
 
 router.route('/:id/register')
   .post(registerForEvent);
