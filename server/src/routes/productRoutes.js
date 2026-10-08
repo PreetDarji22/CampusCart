@@ -9,7 +9,7 @@ import {
   updateProduct,
   updateProductStatus
 } from '../controllers/productController.js';
-import { protect } from '../middlewares/authMiddleware.js';
+import { optionalProtect, protect } from '../middlewares/authMiddleware.js';
 import { validate } from '../middlewares/validate.js';
 
 const router = express.Router();
@@ -20,7 +20,7 @@ router.get('/:id', getProductById);
 
 router.post(
   '/',
-  protect,
+  optionalProtect,
   validate([
     body('title').notEmpty().withMessage('Title is required'),
     body('description').notEmpty().withMessage('Description is required'),

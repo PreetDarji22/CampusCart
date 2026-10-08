@@ -35,6 +35,28 @@ export const protect = asyncHandler(async (req, res, next) => {
   }
 });
 
+// Optional Protect middleware: attaches user if token is valid, but allows guest access if not
+export const optionalProtect = asyncHandler(async (req, res, next) => {
+  let token;
+
+  if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
+    token = req.headers.authorization.split(' ')[1];
+  } else if (req.cookies?.refreshToken) {
+    token = req.cookies.refreshToken;
+  }
+
+  if (token) {
+    try {
+      const decoded = jwt.verify(token, process.env.JWT_SECRET || 'fallback_secret');
+      const user = await User.findById(decoded.id);
+      if (user && !user.isSuspended) {
+        req.user = user;
+      }
+    } catch {}
+  }
+  next();
+});
+
 // Grant access to specific roles (e.g. 'admin')
 export const authorize = (...roles) => {
   return (req, res, next) => {

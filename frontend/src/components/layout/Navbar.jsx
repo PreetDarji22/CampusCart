@@ -92,7 +92,7 @@ export const AppNavbar = () => {
   };
 
   const handleSellItemClick = () => {
-    requireAuth(() => setIsAddListingOpen(true));
+    setIsAddListingOpen(true);
     setIsMobileMenuOpen(false);
   };
 
